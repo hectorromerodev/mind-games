@@ -43,9 +43,17 @@
       <!-- User Actions -->
       <div class="hidden md:block">
         <div class="ml-4 flex items-center md:ml-6">
-          <button class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-2 px-4 rounded-full text-sm transition-all duration-300">
-            Sign In
-          </button>
+          <div class="relative group">
+            <button class="bg-gray-600 cursor-not-allowed text-gray-300 font-bold py-2 px-4 rounded-full text-sm opacity-60 flex items-center">
+              Sign In
+              <span class="ml-2 text-xs bg-yellow-500 text-yellow-900 px-2 py-1 rounded-full font-bold">
+                Soon
+              </span>
+            </button>
+            <div class="absolute top-full right-0 mt-2 w-48 bg-black/90 backdrop-blur-sm text-white text-xs p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
+              🔒 User authentication coming soon! Track progress and compete with others.
+            </div>
+          </div>
         </div>
       </div>
       
