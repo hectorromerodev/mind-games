@@ -23,9 +23,17 @@
           <a href="/games" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
             Games
           </a>
-          <a href="/leaderboard" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
-            Leaderboard
-          </a>
+          <div class="relative group">
+            <span class="text-gray-400 cursor-not-allowed px-3 py-2 rounded-md text-sm font-medium flex items-center">
+              Leaderboard
+              <span class="ml-2 text-xs bg-yellow-500 text-yellow-900 px-2 py-1 rounded-full font-bold">
+                Soon
+              </span>
+            </span>
+            <div class="absolute top-full left-0 mt-2 w-48 bg-black/90 backdrop-blur-sm text-white text-xs p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
+              Coming soon! Login required to view leaderboards.
+            </div>
+          </div>
           <a href="/about" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
             About
           </a>
