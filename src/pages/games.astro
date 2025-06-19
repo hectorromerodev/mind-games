@@ -1,0 +1,60 @@
+---
+import Layout from '../layouts/Layout.astro';
+import GameCard from '../components/GameCard.astro';
+import SoonCard from '../components/SoonCard.astro';
+---
+
+<Layout title="Games - Mind Games">
+  <div class="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">
+          Choose Your Challenge
+        </h1>
+        <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+          Select from our collection of mind-bending games designed to test different aspects of your cognitive abilities
+        </p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <GameCard 
+          title="Memory Matrix"
+          description="Test your memory by remembering the pattern of lights in an increasingly complex grid"
+          icon="🧠"
+          difficulty="Easy"
+          href="/games/memory-matrix"
+        />
+        
+        <SoonCard 
+          title="Logic Puzzles"
+          description="Solve intricate logic puzzles that will challenge your reasoning and deduction skills"
+          icon="🧩"
+        />
+        
+        <SoonCard 
+          title="Speed Math"
+          description="Quick arithmetic challenges to test your mental calculation speed under pressure"
+          icon="⚡"
+        />
+        
+        <SoonCard 
+          title="Pattern Recognition"
+          description="Identify patterns in sequences and shapes to advance through challenging levels"
+          icon="🔍"
+        />
+        
+        <SoonCard 
+          title="Word Association"
+          description="Connect words through creative associations in this language-based brain teaser"
+          icon="📝"
+        />
+        
+        <SoonCard 
+          title="Spatial Reasoning"
+          description="Navigate complex 3D puzzles and rotate objects in your mind to find solutions"
+          icon="🎲"
+        />
+      </div>
+    </div>
+  </div>
+</Layout>

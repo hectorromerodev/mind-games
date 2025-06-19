@@ -1,0 +1,365 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+---
+
+<GameLayout 
+  title="Memory Matrix - Mind Games"
+  gameTitle="Memory Matrix"
+  gameIcon="🧠"
+  description="Watch the pattern, then recreate it from memory!"
+>
+  <!-- Game Stats -->
+  <div class="flex justify-center gap-8 mb-8">
+    <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center border border-white/20">
+      <div class="text-2xl font-bold text-white" id="level">1</div>
+      <div class="text-gray-300 text-sm">Level</div>
+    </div>
+    <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center border border-white/20">
+      <div class="text-2xl font-bold text-white" id="score">0</div>
+      <div class="text-gray-300 text-sm">Score</div>
+    </div>
+    <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center border border-white/20">
+      <div class="text-2xl font-bold text-white" id="timer">2:00</div>
+      <div class="text-gray-300 text-sm">Time Left</div>
+    </div>
+  </div>
+
+      <!-- Game Container -->
+      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20 text-center">
+        <!-- Instructions -->
+        <div id="instructions" class="mb-8 text-left bg-black/20 rounded-lg p-6">
+          <h3 class="text-lg font-bold text-white mb-3">How to Play:</h3>
+          <ul class="text-gray-300 space-y-2">
+            <li>• Watch carefully as the pattern lights up</li>
+            <li>• Memorize which cells were highlighted</li>
+            <li>• Click on the cells to recreate the pattern</li>
+            <li>• Complete the pattern before time runs out</li>
+            <li>• Each level increases the grid size and complexity</li>
+          </ul>
+        </div>
+
+        <!-- Game Status -->
+        <div id="gameStatus" class="mb-6">
+          <h2 class="text-2xl font-bold text-white mb-2">Ready to start?</h2>
+          <p class="text-gray-300">Click "Start Game" to begin the Memory Matrix challenge!</p>
+        </div>
+
+        <!-- Game Grid -->
+        <div id="gameGrid" class="inline-block pb-12" style="display: none;">
+          <!-- Grid will be generated dynamically -->
+        </div>
+
+        <!-- Game Controls -->
+        <div id="gameControls" class="space-y-4">
+          <button 
+            id="startBtn" 
+            class="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105"
+          >
+            Start Game
+          </button>
+          
+          <button 
+            id="resetBtn" 
+            class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105 ml-4"
+            style="display: none;"
+          >
+            Reset Game
+          </button>
+        </div>
+      </div>
+</GameLayout>
+
+<script>
+  class MemoryMatrixGame {
+    constructor() {
+      this.level = 1;
+      this.score = 0;
+      this.timeLeft = 120; // 2 minutes in seconds
+      this.gameActive = false;
+      this.showingPattern = false;
+      this.pattern = [];
+      this.userInput = [];
+      this.gridSize = { rows: 2, cols: 2 };
+      this.timer = null;
+      this.patternTimeout = null;
+      
+      this.initializeGame();
+    }
+
+    initializeGame() {
+      this.setupEventListeners();
+      this.updateDisplay();
+    }
+
+    setupEventListeners() {
+      document.getElementById('startBtn').addEventListener('click', () => this.startGame());
+      document.getElementById('resetBtn').addEventListener('click', () => this.resetGame());
+    }
+
+    startGame() {
+      this.gameActive = true;
+      this.timeLeft = 120;
+      
+      // Reset game state if this is a "Play Again"
+      if (document.getElementById('startBtn').textContent === 'Play Again') {
+        this.level = 1;
+        this.score = 0;
+        this.pattern = [];
+        this.userInput = [];
+      }
+      
+      this.startTimer();
+      this.generateLevel();
+      this.updateGameStatus('Get ready...', 'The pattern will show in 3 seconds');
+      
+      setTimeout(() => this.showPattern(), 3000);
+      
+      document.getElementById('startBtn').style.display = 'none';
+      document.getElementById('resetBtn').style.display = 'inline-block';
+      document.getElementById('instructions').style.display = 'none';
+    }
+
+    generateLevel() {
+      // Calculate grid size based on level
+      if (this.level === 1) {
+        this.gridSize = { rows: 2, cols: 2 };
+      } else if (this.level === 2) {
+        this.gridSize = { rows: 2, cols: 3 };
+      } else if (this.level === 3) {
+        this.gridSize = { rows: 3, cols: 3 };
+      } else if (this.level === 4) {
+        this.gridSize = { rows: 3, cols: 4 };
+      } else if (this.level === 5) {
+        this.gridSize = { rows: 4, cols: 4 };
+      } else {
+        // For levels 6+, increase complexity
+        this.gridSize = { 
+          rows: Math.min(6, 3 + Math.floor(this.level / 3)), 
+          cols: Math.min(6, 3 + Math.floor(this.level / 2))
+        };
+      }
+
+      // Generate pattern (number of cells to highlight increases with level)
+      const totalCells = this.gridSize.rows * this.gridSize.cols;
+      const patternSize = Math.min(totalCells, Math.floor(totalCells * 0.3) + this.level);
+      
+      this.pattern = [];
+      while (this.pattern.length < patternSize) {
+        const randomCell = Math.floor(Math.random() * totalCells);
+        if (!this.pattern.includes(randomCell)) {
+          this.pattern.push(randomCell);
+        }
+      }
+
+      this.userInput = [];
+      this.createGrid();
+    }
+
+    createGrid() {
+      const grid = document.getElementById('gameGrid');
+      grid.innerHTML = '';
+      grid.style.display = 'flex';
+      grid.style.justifyContent = 'center';
+      grid.style.alignItems = 'center';
+      
+      // Create inner grid container
+      const innerGrid = document.createElement('div');
+      const gridStyle = `
+        display: grid;
+        grid-template-columns: repeat(${this.gridSize.cols}, 1fr);
+        gap: 8px;
+        max-width: 400px;
+        margin: 0 auto;
+      `;
+      innerGrid.style.cssText = gridStyle;
+
+      for (let i = 0; i < this.gridSize.rows * this.gridSize.cols; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'memory-cell';
+        cell.style.cssText = `
+          width: 60px;
+          height: 60px;
+          background: rgba(255, 255, 255, 0.1);
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        `;
+        cell.dataset.index = i;
+        cell.addEventListener('click', () => this.cellClick(i));
+        innerGrid.appendChild(cell);
+      }
+      
+      grid.appendChild(innerGrid);
+    }
+
+    showPattern() {
+      this.showingPattern = true;
+      this.updateGameStatus('Memorize this pattern!', 'Pattern will show for 3 seconds');
+      
+      const cells = document.querySelectorAll('.memory-cell');
+      
+      // Highlight pattern cells
+      this.pattern.forEach(index => {
+        cells[index].style.background = 'linear-gradient(45deg, #10b981, #34d399)';
+        cells[index].style.borderColor = '#10b981';
+        cells[index].style.transform = 'scale(1.1)';
+      });
+
+      // Hide pattern after 3 seconds
+      this.patternTimeout = setTimeout(() => {
+        cells.forEach(cell => {
+          cell.style.background = 'rgba(255, 255, 255, 0.1)';
+          cell.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+          cell.style.transform = 'scale(1)';
+        });
+        
+        this.showingPattern = false;
+        this.updateGameStatus('Now recreate the pattern!', 'Click on the cells that were highlighted');
+        // Remove the submit button display since we're auto-submitting
+      }, 3000);
+    }
+
+    cellClick(index) {
+      if (this.showingPattern || !this.gameActive) return;
+
+      const cell = document.querySelectorAll('.memory-cell')[index];
+      
+      if (this.userInput.includes(index)) {
+        // Remove from selection
+        this.userInput = this.userInput.filter(i => i !== index);
+        cell.style.background = 'rgba(255, 255, 255, 0.1)';
+        cell.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+      } else {
+        // Add to selection
+        this.userInput.push(index);
+        cell.style.background = 'linear-gradient(45deg, #8b5cf6, #a78bfa)';
+        cell.style.borderColor = '#8b5cf6';
+      }
+      
+      // Auto-submit when pattern is complete
+      if (this.userInput.length === this.pattern.length) {
+        setTimeout(() => this.submitAnswer(), 500); // Small delay for visual feedback
+      }
+    }
+
+    submitAnswer() {
+      if (!this.gameActive) return;
+
+      const isCorrect = this.pattern.length === this.userInput.length && 
+                       this.pattern.every(cell => this.userInput.includes(cell));
+
+      if (isCorrect) {
+        this.score += this.level * 100;
+        this.level++;
+        this.updateGameStatus('Correct! 🎉', `Level ${this.level - 1} completed! Get ready for the next level...`);
+        
+        setTimeout(() => {
+          this.generateLevel();
+          setTimeout(() => this.showPattern(), 2000);
+        }, 2000);
+      } else {
+        this.updateGameStatus('Wrong pattern! 😞', 'Try again with the same level...');
+        
+        // Clear user input and reload the same level
+        this.userInput = [];
+        
+        setTimeout(() => {
+          this.createGrid(); // Recreate the grid to clear selections
+          setTimeout(() => this.showPattern(), 1000);
+        }, 1500);
+      }
+      
+      this.updateDisplay();
+    }
+
+    startTimer() {
+      this.timer = setInterval(() => {
+        this.timeLeft--;
+        this.updateTimerDisplay();
+        
+        if (this.timeLeft <= 0) {
+          this.updateGameStatus('Time\'s up! ⏰', 'Game Over! Click "Play Again" to start a new game.');
+          this.endGame();
+        }
+      }, 1000);
+    }
+
+    endGame() {
+      this.gameActive = false;
+      clearInterval(this.timer);
+      clearTimeout(this.patternTimeout);
+      
+      // Reset game state for "Play Again"
+      this.level = 1;
+      this.score = 0;
+      this.timeLeft = 120;
+      this.pattern = [];
+      this.userInput = [];
+      
+      // Update display and show play again button
+      this.updateDisplay();
+      document.getElementById('startBtn').style.display = 'inline-block';
+      document.getElementById('startBtn').textContent = 'Play Again';
+      document.getElementById('gameGrid').style.display = 'none';
+      document.getElementById('instructions').style.display = 'block';
+    }
+
+    resetGame() {
+      this.level = 1;
+      this.score = 0;
+      this.timeLeft = 120;
+      this.gameActive = false;
+      this.pattern = [];
+      this.userInput = [];
+      
+      clearInterval(this.timer);
+      clearTimeout(this.patternTimeout);
+      
+      this.updateDisplay();
+      this.updateGameStatus('Ready to start?', 'Click "Start Game" to begin the Memory Matrix challenge!');
+      
+      document.getElementById('startBtn').style.display = 'inline-block';
+      document.getElementById('startBtn').textContent = 'Start Game';
+      document.getElementById('resetBtn').style.display = 'none';
+      document.getElementById('gameGrid').style.display = 'none';
+      document.getElementById('instructions').style.display = 'block';
+    }
+
+    updateDisplay() {
+      document.getElementById('level').textContent = this.level;
+      document.getElementById('score').textContent = this.score;
+      this.updateTimerDisplay();
+    }
+
+    updateTimerDisplay() {
+      const minutes = Math.floor(this.timeLeft / 60);
+      const seconds = this.timeLeft % 60;
+      document.getElementById('timer').textContent = 
+        `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      
+      // Change color when time is running low
+      const timerElement = document.getElementById('timer');
+      if (this.timeLeft <= 30) {
+        timerElement.style.color = '#ef4444';
+      } else if (this.timeLeft <= 60) {
+        timerElement.style.color = '#f59e0b';
+      } else {
+        timerElement.style.color = 'white';
+      }
+    }
+
+    updateGameStatus(title, description) {
+      document.querySelector('#gameStatus h2').textContent = title;
+      document.querySelector('#gameStatus p').textContent = description;
+    }
+  }
+
+  // Initialize the game when the page loads
+  document.addEventListener('DOMContentLoaded', () => {
+    new MemoryMatrixGame();
+  });
+</script>
