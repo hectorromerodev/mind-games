@@ -1,0 +1,80 @@
+---
+export interface Props {
+  round: number;
+  score: number;
+  timeLeft: number;
+  level?: string;
+}
+
+const { round, score, timeLeft, level } = Astro.props;
+
+// Convert time to display format
+const minutes = Math.floor(timeLeft / 60);
+const seconds = timeLeft % 60;
+const timeDisplay = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+// Determine time color based on remaining time
+let timeColor = 'text-white';
+if (timeLeft <= 30) {
+  timeColor = 'text-red-400';
+} else if (timeLeft <= 60) {
+  timeColor = 'text-yellow-400';
+}
+
+// Determine level color based on performance level
+let levelColor = 'text-white';
+if (level) {
+  if (level.includes('Extremely') || level.includes('Outstanding')) {
+    levelColor = 'text-purple-400';
+  } else if (level.includes('Very') || level.includes('Excellent')) {
+    levelColor = 'text-blue-400';
+  } else if (level.includes('Advanced') || level.includes('Great')) {
+    levelColor = 'text-green-400';
+  } else if (level.includes('High') || level.includes('Good')) {
+    levelColor = 'text-cyan-400';
+  } else if (level.includes('Average') || level.includes('Solid')) {
+    levelColor = 'text-gray-300';
+  } else if (level.includes('Low') || level.includes('Improvement')) {
+    levelColor = 'text-orange-400';
+  } else if (level.includes('Needs') || level.includes('Practice')) {
+    levelColor = 'text-red-400';
+  }
+}
+---
+
+<div class="flex justify-center gap-4 md:gap-8 mb-8 flex-wrap">
+  <!-- Round/Level -->
+  <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 md:p-4 text-center border border-white/20 min-w-[80px]">
+    <div class="text-xl md:text-2xl font-bold text-white" id="round">{round}</div>
+    <div class="text-gray-300 text-xs md:text-sm">Round</div>
+  </div>
+  
+  <!-- Score -->
+  <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 md:p-4 text-center border border-white/20 min-w-[80px]">
+    <div class="text-xl md:text-2xl font-bold text-white" id="score">{score.toLocaleString()}</div>
+    <div class="text-gray-300 text-xs md:text-sm">Score</div>
+  </div>
+  
+  <!-- Timer -->
+  <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 md:p-4 text-center border border-white/20 min-w-[80px]">
+    <div class={`text-xl md:text-2xl font-bold ${timeColor}`} id="timer">{timeDisplay}</div>
+    <div class="text-gray-300 text-xs md:text-sm">Time Left</div>
+  </div>
+  
+  <!-- Level (only show when game is finished - exclude Playing/Ready states) -->
+  {level && !level.includes('Playing') && !level.includes('Ready') && (
+    <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 md:p-4 text-center border border-white/20 min-w-[120px]">
+      <div class={`text-sm md:text-base font-bold ${levelColor}`} id="level">{level}</div>
+      <div class="text-gray-300 text-xs md:text-sm">Performance</div>
+    </div>
+  )}
+</div>
+
+<style>
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    .flex {
+      gap: 0.5rem;
+    }
+  }
+</style>

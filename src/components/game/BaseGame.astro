@@ -1,0 +1,137 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+import StartGame from '../StartGame.astro';
+import GameStats from '../GameStats.astro';
+
+export interface Props {
+  gameTitle: string;
+  gameIcon?: string;
+  description?: string;
+  maxTime?: number;
+  showStats?: boolean;
+  showInstructions?: boolean;
+}
+
+const { 
+  gameTitle,
+  gameIcon = "🎮",
+  description,
+  maxTime = 90,
+  showStats = true,
+  showInstructions = true
+} = Astro.props;
+---
+
+<GameLayout 
+  title={`${gameTitle} - Mind Games`}
+  gameTitle={gameTitle}
+  gameIcon={gameIcon}
+  description={description}
+>
+  <!-- Start Game Section -->
+  <div id="startSection" class="transition-all duration-700 ease-in-out">
+    <StartGame 
+      gameTitle={gameTitle}
+      buttonText="Start Game"
+      buttonId="startBtn"
+    />
+    
+    <!-- Instructions Slot -->
+    {showInstructions && (
+      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 text-left transition-all duration-500 hover:bg-white/15">
+        <slot name="instructions">
+          <h3 class="text-lg font-bold text-white mb-3">
+            How to Play {gameTitle}:
+          </h3>
+          <div class="text-gray-300">
+            <slot name="instructions-content" />
+          </div>
+        </slot>
+      </div>
+    )}
+  </div>
+
+  <!-- Game Section -->
+  <div id="gameSection" class="opacity-0 transform translate-y-8 transition-all duration-700 ease-in-out" style="display: none;">
+    <!-- Game Stats -->
+    {showStats && (
+      <div class="animate-slide-down">
+        <GameStats 
+          round={1} 
+          score={0} 
+          timeLeft={maxTime} 
+          level="Ready to Start"
+        />
+      </div>
+    )}
+
+    <!-- Game Container -->
+    <div class="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20 text-center animate-slide-up">
+      <!-- Game Status -->
+      <div id="gameStatus" class="mb-6 text-center">
+        <h2 id="statusMessage" class="text-2xl font-bold text-white mb-4 transition-all duration-300">
+          <slot name="status-message">Get ready...</slot>
+        </h2>
+      </div>
+
+      <!-- Game Content Slot -->
+      <div id="gameContent" class="mb-8">
+        <slot name="game-content" />
+      </div>
+
+      <!-- Game Controls Slot -->
+      <div id="gameControls">
+        <slot name="game-controls" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Modals/Overlays Slot -->
+  <slot name="modals" />
+</GameLayout>
+
+<style>
+  /* Smooth animations for game transitions */
+  .animate-slide-down {
+    animation: slideDown 0.6s ease-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out 0.2s both;
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Transition classes */
+  .fade-out {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+    transition: all 0.5s ease-in-out;
+  }
+  
+  .fade-in {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transition: all 0.7s ease-in-out;
+  }
+</style>
