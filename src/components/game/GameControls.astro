@@ -1,0 +1,71 @@
+---
+import Button from '../ui/Button.astro';
+
+export interface Props {
+  showReset?: boolean;
+  showPause?: boolean;
+  customButtons?: Array<{
+    text: string;
+    id: string;
+    variant: 'primary' | 'secondary' | 'reset' | 'pause' | 'start';
+    onClick?: string;
+  }>;
+}
+
+const { 
+  showReset = true, 
+  showPause = false, 
+  customButtons = [] 
+} = Astro.props;
+---
+
+<div class="text-center space-y-4">
+  {showReset && (
+    <Button 
+      variant="reset" 
+      id="resetBtn"
+      size="md"
+    >
+      Reset Game
+    </Button>
+  )}
+  
+  {showPause && (
+    <Button 
+      variant="pause" 
+      id="pauseBtn"
+      size="md"
+    >
+      Pause Game
+    </Button>
+  )}
+  
+  {customButtons.map(button => (
+    <Button 
+      variant={button.variant}
+      id={button.id}
+      onClick={button.onClick}
+      size="md"
+    >
+      {button.text}
+    </Button>
+  ))}
+</div>
+
+<style>
+  .space-y-4 > * + * {
+    margin-top: 1rem;
+  }
+  
+  @media (min-width: 640px) {
+    .text-center {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+    
+    .space-y-4 > * + * {
+      margin-top: 0;
+    }
+  }
+</style>

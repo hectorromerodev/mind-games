@@ -1,0 +1,108 @@
+---
+export interface Props {
+  gameTitle: string;
+  gameDescription?: string;
+  buttonText?: string;
+  buttonId?: string;
+  onStartClick?: string;
+}
+
+const { 
+  gameTitle, 
+  gameDescription = "",
+  buttonText = "Start Game",
+  buttonId = "startBtn",
+  onStartClick = ""
+} = Astro.props;
+---
+
+<div id="startGameContainer" class="text-center mb-8 transition-all duration-700 ease-in-out">
+  <h2 class="text-3xl md:text-4xl font-bold text-white mb-6 animate-fade-in">Ready to start?</h2>
+  
+  <button 
+    id={buttonId}
+    class="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 px-10 rounded-xl text-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-2xl border border-white/20 animate-bounce-subtle"
+    onclick={onStartClick}
+  >
+    {buttonText}
+  </button>
+</div>
+
+<style>
+  /* Smooth animations and transitions */
+  .animate-fade-in {
+    animation: fadeIn 1s ease-out;
+  }
+  
+  .animate-bounce-subtle {
+    animation: bounceSubtle 2s ease-in-out infinite;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes bounceSubtle {
+    0%, 20%, 50%, 80%, 100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-3px);
+    }
+    60% {
+      transform: translateY(-2px);
+    }
+  }
+  
+  /* Hide animation */
+  .hide-animated {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+    pointer-events: none;
+  }
+  
+  /* Button improvements */
+  button {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+  }
+  
+  button:hover::before {
+    left: 100%;
+  }
+  
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+  
+  @media (max-width: 640px) {
+    button {
+      padding: 0.75rem 2rem;
+      font-size: 1.125rem;
+    }
+    
+    h2 {
+      font-size: 2rem;
+    }
+  }
+</style>
