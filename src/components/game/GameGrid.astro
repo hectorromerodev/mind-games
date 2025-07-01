@@ -1,0 +1,85 @@
+---
+export interface Props {
+  gridSize: [number, number]; // [rows, cols]
+  cellSize?: number;
+  cellClass?: string;
+  onCellClick?: string;
+  gap?: number;
+  maxWidth?: number;
+}
+
+const { 
+  gridSize, 
+  cellSize = 80, 
+  cellClass = 'game-cell', 
+  onCellClick = '',
+  gap = 8,
+  maxWidth = 400
+} = Astro.props;
+
+const [rows, cols] = gridSize;
+const totalCells = rows * cols;
+
+const gridStyles = `
+  display: grid;
+  grid-template-columns: repeat(${cols}, 1fr);
+  gap: ${gap}px;
+  max-width: ${maxWidth}px;
+  margin: 0 auto;
+`;
+
+const cellStyles = `
+  width: ${cellSize}px;
+  height: ${cellSize}px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease-in-out;
+`;
+---
+
+<div class="game-grid" style={gridStyles}>
+  {Array.from({ length: totalCells }, (_, i) => (
+    <div 
+      class={`${cellClass} game-cell`}
+      style={cellStyles}
+      data-index={i}
+      onclick={onCellClick ? `${onCellClick}(${i})` : ''}
+    >
+      <!-- Cell content slot -->
+    </div>
+  ))}
+</div>
+
+<style>
+  .game-cell {
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .game-cell:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.5);
+  }
+  
+  .game-cell.active {
+    animation: cellPulse 0.6s ease-in-out;
+  }
+  
+  @keyframes cellPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); box-shadow: 0 0 30px rgba(147, 51, 234, 0.8); }
+    100% { transform: scale(1); }
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    .game-grid {
+      max-width: 300px !important;
+    }
+  }
+</style>
