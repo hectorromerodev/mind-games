@@ -198,8 +198,9 @@ const performance = scorer.calculatePerformanceLevel(
 ## 📝 Examples
 
 See these example implementations:
-- `simon-says-new.astro` - Refactored Simon Says
-- `memory-match-example.astro` - Complete Memory Match game
+### Current Games
+
+- `simon-says.astro` - Main Simon Says game using the architecture
 
 ## 🔧 Best Practices
 
