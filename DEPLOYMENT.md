@@ -31,9 +31,19 @@ The project is configured for automatic deployment to GitHub Pages using GitHub 
 
 ### Astro Configuration
 - **File**: `astro.config.mjs`
-- **Settings**:
-  - `site`: Your GitHub Pages URL
-  - `base`: Repository name (for subdirectory deployment)
+- **Smart Configuration**: Automatically detects GitHub Actions environment
+- **GitHub Pages**: Uses `site` and `base` path for subdirectory deployment
+- **Custom Domain**: No base path when deployed elsewhere (e.g., your own domain)
+
+**Environment Detection:**
+```javascript
+// Automatically detects GitHub Pages deployment
+const isGitHubPages = process.env.GITHUB_ACTIONS === 'true';
+
+// Only applies GitHub Pages settings when deploying via GitHub Actions
+site: isGitHubPages ? 'https://hectorromerodev.github.io' : undefined,
+base: isGitHubPages ? '/mind-games' : undefined,
+```
 
 ## 📝 Configuration Details
 
@@ -45,11 +55,21 @@ https://hectorromerodev.github.io/mind-games/
 - **Domain**: `hectorromerodev.github.io`
 - **Base Path**: `/mind-games`
 
+**Important**: All pages must include the base path `/mind-games/` in the URL:
+- ✅ Correct: `https://hectorromerodev.github.io/mind-games/`
+- ✅ Correct: `https://hectorromerodev.github.io/mind-games/games`
+- ✅ Correct: `https://hectorromerodev.github.io/mind-games/games/simon-says`
+- ❌ Wrong: `https://hectorromerodev.github.io/games` (missing base path)
+
 ### Build Process
-1. **Dependencies**: Installed using Bun
-2. **Build**: `bun run build` creates production files
-3. **Output**: Static files in `./dist` directory
-4. **Deploy**: Files uploaded to GitHub Pages
+1. **Environment Detection**: Automatically detects GitHub Pages vs. custom deployment
+2. **Dependencies**: Installed using Bun
+3. **Build**: `bun run build` creates production files
+4. **Configuration**: 
+   - **GitHub Pages**: Applies `/mind-games` base path automatically
+   - **Custom Domain**: No base path, works at domain root
+5. **Output**: Static files in `./dist` directory
+6. **Deploy**: Files uploaded to GitHub Pages
 
 ## 🔍 Troubleshooting
 
@@ -62,8 +82,10 @@ https://hectorromerodev.github.io/mind-games/
 
 **404 Errors**:
 - Verify `base` path in `astro.config.mjs`
-- Check internal links use relative paths
+- **Always use full URLs** with base path: `/mind-games/page-name`
+- Check internal links use relative paths or include base path
 - Ensure asset paths are correctly resolved
+- Test URLs locally with `bun run preview` to match production behavior
 
 **Styling Issues**:
 - Tailwind CSS should build correctly with Vite plugin
@@ -80,10 +102,55 @@ bun run build
 bun run preview
 ```
 
+The preview server will show you exactly how the site will behave on GitHub Pages, including the correct URL structure.
+
+### URL Troubleshooting
+
+**Common URL Issues:**
+
+1. **Missing Base Path**: 
+   - ❌ `https://hectorromerodev.github.io/games`
+   - ✅ `https://hectorromerodev.github.io/mind-games/games`
+
+2. **Direct Repository Access**:
+   - If you want the site at the root (`https://hectorromerodev.github.io/`), you would need to:
+     - Rename the repository to `hectorromerodev.github.io`
+     - Remove the `base: '/mind-games'` from `astro.config.mjs`
+     - This would make it your main GitHub Pages site
+
+3. **Internal Links**:
+   - Astro automatically handles the base path for internal navigation
+   - External links to your site need the full URL with base path
+
 ## 🌐 Live Site
 
 Once deployed, your site will be available at:
 **https://hectorromerodev.github.io/mind-games/**
+
+## 🏠 Custom Domain Deployment
+
+The configuration automatically adapts for custom domain deployment:
+
+### For Your Own Domain
+When you're ready to deploy to your own domain (e.g., `yourdomain.com`):
+
+1. **No Configuration Changes Needed**: The smart configuration will automatically:
+   - Remove the `/mind-games` base path
+   - Work at your domain root (`https://yourdomain.com/`)
+   - Keep all internal links working correctly
+
+2. **Deployment Options**:
+   - **Netlify**: Connect your GitHub repo, build command: `bun run build`
+   - **Vercel**: Connect your GitHub repo, framework preset: Astro
+   - **Your Own Server**: Upload the `dist/` folder contents
+   - **Custom GitHub Pages Domain**: Add CNAME file and configure DNS
+
+### Local Development vs Production
+- **Local**: `http://localhost:4321/` (no base path)
+- **GitHub Pages**: `https://hectorromerodev.github.io/mind-games/` (with base path)
+- **Custom Domain**: `https://yourdomain.com/` (no base path)
+
+The same codebase works seamlessly across all environments!
 
 ## 🔄 Deployment Status
 
@@ -107,8 +174,21 @@ Before pushing to production:
 
 Consider these deployment improvements:
 
-- **Custom Domain**: Add custom domain in Pages settings
+### GitHub Pages Specific
+- **Custom Domain**: Add custom domain in Pages settings (will automatically remove base path)
 - **Environment Variables**: Use GitHub Secrets for sensitive data
-- **Build Optimization**: Add caching to speed up builds
+- **Build Status Badge**: Add build status badge to README
 - **Branch Protection**: Require PR reviews before main branch merges
+
+### Multi-Environment Support
 - **Staging Environment**: Deploy feature branches to preview environments
+- **Build Optimization**: Add caching to speed up builds
+- **Analytics**: Add tracking for both GitHub Pages and custom domain
+- **Content Delivery**: Consider CDN for faster global access
+
+### Migration to Custom Domain
+When ready to move to your own domain:
+1. **No code changes required** - configuration is environment-aware
+2. **DNS Setup**: Point your domain to hosting provider
+3. **SSL Certificate**: Most providers handle this automatically
+4. **Redirect Setup**: Optionally redirect GitHub Pages to new domain
