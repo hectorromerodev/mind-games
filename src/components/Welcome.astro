@@ -1,4 +1,6 @@
 ---
+// Get the base path from Astro's runtime config
+const base = import.meta.env.BASE_URL || '/';
 ---
 
 <div class="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
@@ -39,7 +41,7 @@
     
     <!-- Call to Action Buttons -->
     <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-      <a href="/games" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
+      <a href={`${base}games`} class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
         Start Playing
       </a>
       

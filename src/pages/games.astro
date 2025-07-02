@@ -2,6 +2,9 @@
 import Layout from '../layouts/Layout.astro';
 import GameCard from '../components/GameCard.astro';
 import SoonCard from '../components/SoonCard.astro';
+
+// Get the base path from Astro's runtime config
+const base = import.meta.env.BASE_URL || '/';
 ---
 
 <Layout title="Games - Mind Games">
@@ -20,9 +23,9 @@ import SoonCard from '../components/SoonCard.astro';
         <GameCard 
           title="Simon Says"
           description="Watch the sequence of lights and repeat it back. How long can you remember?"
-          icon="🔴"
+          icon="🟩"
           difficulty="Easy"
-          href="/games/simon-says"
+          href={`${base}games/simon-says`}
         />
         
         <SoonCard 

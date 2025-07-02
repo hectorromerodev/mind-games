@@ -7,6 +7,9 @@ export interface Props {
 }
 
 const { title = "Mind Games - Challenge Your Mind" } = Astro.props;
+
+// Get the base path from Astro's runtime config
+const base = import.meta.env.BASE_URL || '/';
 ---
 
 <!doctype html>
@@ -14,7 +17,7 @@ const { title = "Mind Games - Challenge Your Mind" } = Astro.props;
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
 		<meta name="generator" content={Astro.generator} />
 		<meta name="description" content="Challenge your mind with brain-twisting puzzles and games designed to push your cognitive limits." />
 		<title>{title}</title>

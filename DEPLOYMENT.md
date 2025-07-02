@@ -45,6 +45,15 @@ site: isGitHubPages ? 'https://hectorromerodev.github.io' : undefined,
 base: isGitHubPages ? '/mind-games' : undefined,
 ```
 
+**Internal Link Handling:**
+All components use Astro's `BASE_URL` environment variable for proper path resolution:
+```astro
+---
+const base = import.meta.env.BASE_URL || '/';
+---
+<a href={`${base}games`}>Games</a>
+```
+
 ## 📝 Configuration Details
 
 ### Site URL Structure
