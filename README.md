@@ -36,6 +36,12 @@ bun preview
 
 Visit `http://localhost:4321` to start playing!
 
+## 🌐 **Live Demo**
+
+Experience Mind Games online at: **https://hectorromerodev.github.io/mind-games/**
+
+The application is automatically deployed to GitHub Pages on every push to the main branch.
+
 ## 🏗️ **Architecture**
 
 Mind Games features a modular, reusable component architecture:
@@ -96,6 +102,7 @@ See [GAME_ARCHITECTURE.md](./GAME_ARCHITECTURE.md) for detailed instructions.
 - [Game Architecture](./GAME_ARCHITECTURE.md) - Component system and development guide
 - [Scoring System](./SCORING_SYSTEM.md) - Universal scoring framework
 - [Component IDs](./COMPONENT_IDS.md) - Standardized element identification
+- [Deployment Guide](./DEPLOYMENT.md) - GitHub Pages deployment setup and configuration
 
 ## 🤝 **Contributing**
 
