@@ -1,0 +1,95 @@
+---
+import BaseGame from '../../components/game/BaseGame.astro';
+import GameControls from '../../components/game/GameControls.astro';
+---
+
+<BaseGame 
+  gameTitle="Simon Says"
+  gameIcon="🔴"
+  description="Watch the sequence, then repeat it back!"
+  maxTime={90}
+  showStats={true}
+  showInstructions={true}
+>
+  <!-- Instructions Content -->
+  <div slot="instructions-content">
+    <ul class="text-gray-300 space-y-2">
+      <li class="flex items-start gap-2">
+        <span class="text-purple-400 mt-1">•</span>
+        <span>Watch as cells light up in sequence</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <span class="text-blue-400 mt-1">•</span>
+        <span>Repeat the sequence by clicking the cells in order</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <span class="text-green-400 mt-1">•</span>
+        <span>Each round adds one more cell to the sequence</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <span class="text-yellow-400 mt-1">•</span>
+        <span>Complete the sequence correctly to advance</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <span class="text-red-400 mt-1">•</span>
+        <span>Try to remember longer and longer sequences!</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Game Grid -->
+  <div slot="game-content">
+    <div id="gameGrid" class="flex justify-center items-center pb-8 transition-all duration-300">
+      <!-- Grid will be generated dynamically by the game class -->
+    </div>
+  </div>
+
+  <!-- Game Controls -->
+  <div slot="game-controls">
+    <GameControls showReset={true} showPause={false} />
+  </div>
+</BaseGame>
+
+<script>
+  import { SimonSaysGame } from '../../utils/SimonSaysGameClass.js';
+
+  // Initialize the game when the page loads
+  document.addEventListener('DOMContentLoaded', () => {
+    new SimonSaysGame();
+  });
+</script>
+
+<style>
+  /* Game-specific styles */
+  .game-cell {
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .game-cell:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.5);
+  }
+  
+  .game-cell.active {
+    animation: cellPulse 0.6s ease-in-out;
+  }
+  
+  @keyframes cellPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); box-shadow: 0 0 30px rgba(147, 51, 234, 0.8); }
+    100% { transform: scale(1); }
+  }
+  
+  /* Transition classes */
+  .fade-out {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+    transition: all 0.5s ease-in-out;
+  }
+  
+  .fade-in {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transition: all 0.7s ease-in-out;
+  }
+</style>
