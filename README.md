@@ -2,7 +2,7 @@
 
 A modern, interactive web platform featuring brain-training games built with Astro, Tailwind CSS, and TypeScript. Challenge your memory, reaction time, and problem-solving skills with our growing collection of scientifically-inspired cognitive games.
 
-![Mind Games Platform](https://github.com/hectorromerodev/mind-games/src/assets/preview.png)
+![Mind Games Platform](https://github.com/hectorromerodev/mind-games/blob/master/src/assets/preview.png)
 
 ## 🎮 **Featured Games**
 
