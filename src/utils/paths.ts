@@ -27,11 +27,16 @@ export function getBaseUrl(): string {
  * // Custom domain (BASE_URL = '/')
  * createPath('/games') // returns '/games'
  */
-export function createPath(route: string): string {
+export function createPath(route: string | undefined | null): string {
   const base = getBaseUrl();
   
+  // Handle undefined or null route
+  if (!route || route === '') {
+    return base;
+  }
+  
   // Handle root path
-  if (route === '' || route === '/') {
+  if (route === '/') {
     return base;
   }
   
@@ -49,7 +54,7 @@ export function createPath(route: string): string {
  * @param assetPath - Path to the asset (e.g., '/favicon.svg', '/images/logo.png')
  * @returns Properly formatted asset URL
  */
-export function createAssetPath(assetPath: string): string {
+export function createAssetPath(assetPath: string | undefined | null): string {
   return createPath(assetPath);
 }
 
@@ -62,6 +67,7 @@ export const ROUTES = {
   ABOUT: '/about',
   SIMON_SAYS: '/games/simon-says',
   MATH_FLOW: '/games/math-flow',
+  COMPONENT_DEMO: '/games/component-demo',
 } as const;
 
 /**
@@ -70,5 +76,9 @@ export const ROUTES = {
  * @returns Properly formatted URL path
  */
 export function createRoute(route: keyof typeof ROUTES): string {
+  if (!route || !ROUTES[route]) {
+    console.warn(`Invalid route key: ${route}. Falling back to HOME.`);
+    return createPath(ROUTES.HOME);
+  }
   return createPath(ROUTES[route]);
 }
