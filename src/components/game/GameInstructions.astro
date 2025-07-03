@@ -1,0 +1,38 @@
+---
+export interface InstructionSection {
+  title: string;
+  icon: string;
+  color: 'blue' | 'purple' | 'orange' | 'green' | 'red' | 'yellow';
+  items: string[];
+}
+
+export interface Props {
+  sections: InstructionSection[];
+}
+
+const { sections } = Astro.props;
+
+const colorClasses = {
+  blue: 'bg-blue-500/20 border-blue-400/30 text-blue-300',
+  purple: 'bg-purple-500/20 border-purple-400/30 text-purple-300',
+  orange: 'bg-orange-500/20 border-orange-400/30 text-orange-300',
+  green: 'bg-green-500/20 border-green-400/30 text-green-300',
+  red: 'bg-red-500/20 border-red-400/30 text-red-300',
+  yellow: 'bg-yellow-500/20 border-yellow-400/30 text-yellow-300',
+};
+---
+
+<div class="space-y-4">
+  {sections.map((section) => (
+    <div class={`${colorClasses[section.color]} border rounded-lg p-4`}>
+      <h4 class={`font-bold ${colorClasses[section.color].split(' ')[2]} mb-2`}>
+        {section.icon} {section.title}
+      </h4>
+      <ul class="text-sm text-gray-300 space-y-1">
+        {section.items.map((item) => (
+          <li>• {item}</li>
+        ))}
+      </ul>
+    </div>
+  ))}
+</div>
