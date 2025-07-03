@@ -11,7 +11,8 @@ src/
 │   ├── game/              # Game-specific components
 │   │   ├── BaseGame.astro       # Main game layout
 │   │   ├── GameControls.astro   # Standard controls
-│   │   └── GameGrid.astro       # Grid component
+│   │   ├── GameGrid.astro       # Grid component
+│   │   └── GameInstructions.astro # Reusable instructions
 │   ├── ui/                # UI primitives
 │   │   └── Button.astro         # Consistent button
 │   ├── GameStats.astro    # Score/timer display
@@ -200,7 +201,8 @@ const performance = scorer.calculatePerformanceLevel(
 See these example implementations:
 ### Current Games
 
-- `simon-says.astro` - Main Simon Says game using the architecture
+- `simon-says.astro` - Memory sequence game using the new architecture
+- `math-flow.astro` - Mathematical calculation game with distractions and chaining
 
 ## 🔧 Best Practices
 
