@@ -1,11 +1,59 @@
 ---
 import BaseGame from '../../components/game/BaseGame.astro';
 import GameControls from '../../components/game/GameControls.astro';
+import GameInstructions from '../../components/game/GameInstructions.astro';
+
+const instructionSections = [
+  {
+    title: 'How to Play',
+    icon: '🎯',
+    color: 'blue' as const,
+    items: [
+      'Watch as cells light up in sequence',
+      'Repeat the sequence by clicking the cells in order',
+      'Each round adds one more cell to the sequence',
+      'Complete the sequence correctly to advance'
+    ]
+  },
+  {
+    title: 'Skills Developed',
+    icon: '🧠',
+    color: 'purple' as const,
+    items: [
+      'Working memory',
+      'Attention and focus',
+      'Pattern recognition',
+      'Visual-spatial processing'
+    ]
+  },
+  {
+    title: 'Strategy Tips',
+    icon: '⚡',
+    color: 'orange' as const,
+    items: [
+      'Focus intently during the sequence display',
+      'Try to create patterns or groups in your mind',
+      'Practice regularly to improve memory span',
+      'Stay calm and don\'t rush your clicks'
+    ]
+  },
+  {
+    title: 'Scoring',
+    icon: '📊',
+    color: 'green' as const,
+    items: [
+      'Round completion: Base points per round',
+      'Streak bonus: Extra points for consecutive rounds',
+      'Progression bonus: Higher rounds = more points',
+      'Performance rating: Based on rounds completed'
+    ]
+  }
+];
 ---
 
 <BaseGame 
   gameTitle="Simon Says"
-  gameIcon="🔴"
+  gameIcon="🟢"
   description="Watch the sequence, then repeat it back!"
   maxTime={90}
   showStats={true}
@@ -13,28 +61,7 @@ import GameControls from '../../components/game/GameControls.astro';
 >
   <!-- Instructions Content -->
   <div slot="instructions-content">
-    <ul class="text-gray-300 space-y-2">
-      <li class="flex items-start gap-2">
-        <span class="text-purple-400 mt-1">•</span>
-        <span>Watch as cells light up in sequence</span>
-      </li>
-      <li class="flex items-start gap-2">
-        <span class="text-blue-400 mt-1">•</span>
-        <span>Repeat the sequence by clicking the cells in order</span>
-      </li>
-      <li class="flex items-start gap-2">
-        <span class="text-green-400 mt-1">•</span>
-        <span>Each round adds one more cell to the sequence</span>
-      </li>
-      <li class="flex items-start gap-2">
-        <span class="text-yellow-400 mt-1">•</span>
-        <span>Complete the sequence correctly to advance</span>
-      </li>
-      <li class="flex items-start gap-2">
-        <span class="text-red-400 mt-1">•</span>
-        <span>Try to remember longer and longer sequences!</span>
-      </li>
-    </ul>
+    <GameInstructions sections={instructionSections} />
   </div>
 
   <!-- Game Grid -->
