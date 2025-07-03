@@ -61,6 +61,7 @@ export const ROUTES = {
   GAMES: '/games',
   ABOUT: '/about',
   SIMON_SAYS: '/games/simon-says',
+  MATH_FLOW: '/games/math-flow',
 } as const;
 
 /**
