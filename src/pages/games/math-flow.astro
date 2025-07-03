@@ -1,0 +1,148 @@
+---
+import BaseGame from '../../components/game/BaseGame.astro';
+import GameControls from '../../components/game/GameControls.astro';
+import GameInstructions from '../../components/game/GameInstructions.astro';
+
+const instructionSections = [
+  {
+    title: 'How to Play',
+    icon: '🎯',
+    color: 'blue' as const,
+    items: [
+      'You\'ll start with a number (e.g., 25)',
+      'Use this number in the next calculation',
+      'Your answer becomes the next starting number',
+      'Choose the correct answer from 4 options'
+    ]
+  },
+  {
+    title: 'Skills Developed',
+    icon: '🧠',
+    color: 'purple' as const,
+    items: [
+      'Mental arithmetic',
+      'Working memory',
+      'Focus and concentration',
+      'Processing speed'
+    ]
+  },
+  {
+    title: 'Challenge',
+    icon: '⚠️',
+    color: 'orange' as const,
+    items: [
+      'Ignore the distracting numbers and symbols around the edges',
+      'Focus only on the main calculation in the center!'
+    ]
+  },
+  {
+    title: 'Scoring',
+    icon: '📊',
+    color: 'green' as const,
+    items: [
+      'Correct answers: Points based on speed',
+      'Streak bonus: Extra points for consecutive correct answers',
+      'Time pressure: Faster answers = higher scores'
+    ]
+  }
+];
+---
+
+<BaseGame 
+  gameTitle="Math Flow"
+  gameIcon="➕"
+  description="Use your answer from the previous calculation to perform the current calculations. Ignore the distractions!"
+  maxTime={120}
+>
+  <div slot="instructions-content">
+    <GameInstructions sections={instructionSections} />
+  </div>
+  
+  <div slot="game-content">
+    <!-- Math Problem Display -->
+    <div id="mathProblem" class="mb-8">
+      <!-- Problem will be inserted here by JavaScript -->
+    </div>
+    
+    <!-- Answer Options -->
+    <div id="mathOptions" class="mb-8">
+      <!-- Options will be inserted here by JavaScript -->
+    </div>
+    
+    <!-- Distraction Area (relative positioned for absolute distractions) -->
+    <div class="relative w-full h-32" id="distractionArea">
+      <!-- Distractions will be positioned here -->
+    </div>
+  </div>
+  
+  <div slot="game-controls">
+    <GameControls showReset={true} />
+  </div>
+</BaseGame>
+
+<script>
+  import { MathFlowGameClass } from '../../utils/MathFlowGameClass.js';
+  
+  // Initialize game when page loads
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log('Initializing Math Flow game...');
+    
+    // Create global game instance
+    window.mathFlowGame = new MathFlowGameClass();
+    
+    // Set up start button
+    const startBtn = document.getElementById('startBtn');
+    if (startBtn) {
+      startBtn.addEventListener('click', () => {
+        console.log('Start button clicked');
+        window.mathFlowGame.startGame();
+      });
+    }
+    
+    // Set up reset button
+    const resetBtn = document.getElementById('resetBtn');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        console.log('Reset button clicked');
+        window.mathFlowGame.resetGame();
+      });
+    }
+    
+    console.log('Math Flow game initialized successfully');
+  });
+  
+  // Add global type declaration for TypeScript
+  declare global {
+    interface Window {
+      mathFlowGame: any;
+    }
+  }
+</script>
+
+<style>
+  .math-option:hover {
+    transform: scale(1.05);
+  }
+  
+  .distraction {
+    animation: float 3s ease-in-out infinite;
+    transform-origin: center;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    25% { transform: translateY(-5px) rotate(2deg); }
+    50% { transform: translateY(-2px) rotate(-1deg); }
+    75% { transform: translateY(-7px) rotate(1deg); }
+  }
+  
+  /* Fade in animation for new problems */
+  #mathProblem, #mathOptions {
+    animation: fadeIn 0.5s ease-in;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
