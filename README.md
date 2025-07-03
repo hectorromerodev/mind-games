@@ -12,6 +12,13 @@ Test your working memory with increasingly complex sequences. Features:
 - Performance-based scoring system
 - Real-time feedback and statistics
 
+### Math Flow
+Test your arithmetic skills with chained calculations. Features:
+- Sequential number operations
+- Multiple-choice answers with distractors
+- Visual distractions to test focus
+- Speed-based scoring system
+
 ### Coming Soon
 - Memory Matrix
 - Speed Math
