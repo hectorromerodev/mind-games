@@ -22,7 +22,7 @@ const colorClasses = {
 };
 ---
 
-<div class="space-y-4">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
   {sections.map((section) => (
     <div class={`${colorClasses[section.color]} border rounded-lg p-4`}>
       <h4 class={`font-bold ${colorClasses[section.color].split(' ')[2]} mb-2`}>
