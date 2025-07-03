@@ -21,9 +21,28 @@ import { createRoute } from '../utils/paths';
         <GameCard 
           title="Simon Says"
           description="Watch the sequence of lights and repeat it back. How long can you remember?"
-          icon="🟩"
+          icon="🟢"
           difficulty="Easy"
+          skills={["Memory", "Attention", "Pattern Recognition"]}
           href={createRoute('SIMON_SAYS')}
+        />
+
+        <GameCard 
+          title="Math Flow"
+          description="Use your math skills to solve equations and keep the flow going!"
+          icon="➕"
+          difficulty="Medium"
+          skills={["Arithmetic", "Speed", "Working Memory"]}
+          href={createRoute('MATH_FLOW')}
+        />
+
+        <GameCard 
+          title="Component Demo"
+          description="Explore all reusable game components and their features in this interactive showcase"
+          icon="🧩"
+          difficulty="Easy"
+          skills={["Exploration", "UI/UX", "Components"]}
+          href={createRoute('COMPONENT_DEMO')}
         />
         
         <SoonCard 
