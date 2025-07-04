@@ -7,6 +7,7 @@ interface MathProblem {
   options: number[];
   operation: string;
   previousAnswer?: number;
+  operand?: number;
 }
 
 interface Distraction {
@@ -43,7 +44,7 @@ const GAME_CONSTANTS = {
   MAX_DIFFICULTY_LEVEL: 5,
   OPTION_COUNT: 4,
   STARTING_LIVES: 0,
-  MAX_LIVES: 15
+  MAX_LIVES: 5
 };
 
 export class MathFlowGameClass extends BaseGameClass {
@@ -58,6 +59,7 @@ export class MathFlowGameClass extends BaseGameClass {
   private currentDifficulty: GameDifficulty = DIFFICULTY_SETTINGS[0];
   private gameInitialized: boolean = false;
   private lives: number = GAME_CONSTANTS.STARTING_LIVES;
+  private lastAnswerWasWrong: boolean = false;
 
   constructor() {
     const config: GameConfig = {
@@ -137,6 +139,7 @@ export class MathFlowGameClass extends BaseGameClass {
       this.gameState.score = 0;
       this.currentDifficulty = DIFFICULTY_SETTINGS[0];
       this.lives = GAME_CONSTANTS.STARTING_LIVES;
+      this.lastAnswerWasWrong = false;
       
       // Validate starting state
       this.previousAnswer = this.validateNumber(this.previousAnswer, 'starting number');
@@ -339,17 +342,20 @@ export class MathFlowGameClass extends BaseGameClass {
       // Generate options
       const options = this.generateSafeOptions(correctAnswer);
       
-      // Create question display
+      // Create question display - show the previous answer if the last answer was wrong (to help user remember)
       const questionDisplay = this.gameState.round === 1 
-        ? `${this.previousAnswer} ${finalOperation} ${operand} = ?`
-        : `? ${finalOperation} ${operand} = ?`;
+        ? `${this.previousAnswer} ${finalOperation} ${operand} = ?`  // First round always shows the starting number
+        : (this.lastAnswerWasWrong 
+          ? `${this.previousAnswer} ${finalOperation} ${operand} = ?`  // Show previous answer when last was wrong
+          : `? ${finalOperation} ${operand} = ?`);  // Hide previous answer when last was correct
       
       this.currentProblem = {
         question: questionDisplay,
         correctAnswer,
         options,
         operation: finalOperation,
-        previousAnswer: this.previousAnswer
+        previousAnswer: this.previousAnswer,
+        operand: operand
       };
 
       this.questionStartTime = Date.now();
@@ -402,8 +408,14 @@ export class MathFlowGameClass extends BaseGameClass {
 
   private generateFallbackProblem(): void {
     try {
+      const questionDisplay = this.gameState.round === 1 
+        ? `${this.previousAnswer} + 1 = ?`
+        : (this.lastAnswerWasWrong 
+          ? `${this.previousAnswer} + 1 = ?`  // Show previous answer when last was wrong
+          : `? + 1 = ?`);  // Hide previous answer when last was correct
+        
       this.currentProblem = {
-        question: `${this.previousAnswer} + 1 = ?`,
+        question: questionDisplay,
         correctAnswer: this.previousAnswer + 1,
         options: [
           this.previousAnswer + 1,
@@ -412,7 +424,8 @@ export class MathFlowGameClass extends BaseGameClass {
           this.previousAnswer + 4
         ],
         operation: '+',
-        previousAnswer: this.previousAnswer
+        previousAnswer: this.previousAnswer,
+        operand: 1
       };
       this.questionStartTime = Date.now();
       this.displayProblem();
@@ -507,35 +520,59 @@ export class MathFlowGameClass extends BaseGameClass {
       const optionsContainer = document.getElementById('mathOptions');
       
       if (problemContainer) {
-        problemContainer.innerHTML = `
-          <div class="text-center mb-8">
-            <div class="text-3xl font-bold text-purple-300 mb-2 text-center">
-              ${this.currentProblem.question}
+        // Add subtle fade-in effect
+        problemContainer.style.transition = 'opacity 0.4s ease-in-out';
+        problemContainer.style.opacity = '0';
+        
+        setTimeout(() => {
+          if (!this.currentProblem) return;
+          
+          problemContainer.innerHTML = `
+            <div class="text-center mb-8">
+              <div class="text-3xl font-bold text-purple-300 mb-2 text-center transition-all duration-300">
+                ${this.currentProblem.question}
+              </div>
             </div>
-          </div>
-        `;
-        // Remove any existing animation classes and add new-problem class
-        problemContainer.classList.remove('new-problem');
-        setTimeout(() => problemContainer.classList.add('new-problem'), 10);
+          `;
+          
+          // Fade in the new problem
+          problemContainer.style.opacity = '1';
+          
+          // Remove any existing animation classes and add new-problem class
+          problemContainer.classList.remove('new-problem');
+          setTimeout(() => problemContainer.classList.add('new-problem'), 10);
+        }, 200);
       }
 
       if (optionsContainer) {
-        optionsContainer.innerHTML = `
-          <div class="flex flex-wrap justify-center items-center gap-4 max-w-4xl mx-auto text-center">
-            ${this.currentProblem.options.map((option, index) => `
-              <button 
-                class="math-option bg-slate-900/10 hover:bg-slate-900/20 border-2 border-slate-300/30 hover:border-purple-400 text-white font-bold py-4 px-6 rounded-lg text-xl transition-all duration-200 transform hover:scale-105 min-w-[120px] text-center"
-                data-answer="${option}"
-                onclick="window.mathFlowGame.selectAnswer(${option})"
-              >
-                ${option}
-              </button>
-            `).join('')}
-          </div>
-        `;
-        // Remove any existing animation classes and add new-problem class
-        optionsContainer.classList.remove('new-problem');
-        setTimeout(() => optionsContainer.classList.add('new-problem'), 10);
+        // Add subtle fade-in effect for options
+        optionsContainer.style.transition = 'opacity 0.4s ease-in-out';
+        optionsContainer.style.opacity = '0';
+        
+        setTimeout(() => {
+          if (!this.currentProblem) return;
+          
+          optionsContainer.innerHTML = `
+            <div class="flex flex-wrap justify-center items-center gap-4 max-w-4xl mx-auto text-center">
+              ${this.currentProblem.options.map((option, index) => `
+                <button 
+                  class="math-option bg-slate-900/10 hover:bg-slate-900/20 border-2 border-slate-300/30 hover:border-purple-400 text-white font-bold py-4 px-6 rounded-lg text-xl transition-all duration-200 transform hover:scale-105 min-w-[120px] text-center"
+                  data-answer="${option}"
+                  onclick="window.mathFlowGame.selectAnswer(${option})"
+                >
+                  ${option}
+                </button>
+              `).join('')}
+            </div>
+          `;
+          
+          // Fade in the options
+          optionsContainer.style.opacity = '1';
+          
+          // Remove any existing animation classes and add new-problem class
+          optionsContainer.classList.remove('new-problem');
+          setTimeout(() => optionsContainer.classList.add('new-problem'), 10);
+        }, 300); // Slight delay after problem appears
       }
     } catch (error) {
       console.error('Error displaying problem:', error);
@@ -582,6 +619,9 @@ export class MathFlowGameClass extends BaseGameClass {
       const timeElapsed = (Date.now() - this.questionStartTime) / 1000;
       const isCorrect = selectedNum === this.currentProblem.correctAnswer;
 
+      // Add visual feedback to the selected button
+      this.highlightSelectedAnswer(selectedNum, isCorrect);
+
       if (isCorrect) {
         this.handleCorrectAnswer(timeElapsed);
       } else {
@@ -592,6 +632,55 @@ export class MathFlowGameClass extends BaseGameClass {
     } catch (error) {
       console.error('Error in selectAnswer:', error);
       this.handleGameError("Error processing answer. Please try again.");
+    }
+  }
+
+  private highlightSelectedAnswer(selectedAnswer: number, isCorrect: boolean): void {
+    try {
+      const optionsContainer = document.getElementById('mathOptions');
+      if (!optionsContainer) return;
+
+      const buttons = optionsContainer.querySelectorAll('.math-option');
+      buttons.forEach(button => {
+        const buttonElement = button as HTMLButtonElement;
+        const buttonAnswer = parseInt(buttonElement.dataset.answer || '0');
+        
+        if (buttonAnswer === selectedAnswer) {
+          // Highlight the selected button
+          buttonElement.disabled = true;
+          buttonElement.style.transition = 'all 0.3s ease-in-out';
+          
+          if (isCorrect) {
+            buttonElement.style.backgroundColor = 'rgba(34, 197, 94, 0.3)'; // green
+            buttonElement.style.borderColor = 'rgb(34, 197, 94)';
+            buttonElement.style.transform = 'scale(1.1)';
+            buttonElement.style.boxShadow = '0 0 20px rgba(34, 197, 94, 0.5)';
+          } else {
+            buttonElement.style.backgroundColor = 'rgba(239, 68, 68, 0.3)'; // red
+            buttonElement.style.borderColor = 'rgb(239, 68, 68)';
+            buttonElement.style.transform = 'scale(0.95)';
+            buttonElement.style.boxShadow = '0 0 20px rgba(239, 68, 68, 0.5)';
+          }
+        } else {
+          // Dim other buttons
+          buttonElement.disabled = true;
+          buttonElement.style.transition = 'all 0.3s ease-in-out';
+          buttonElement.style.opacity = '0.5';
+          buttonElement.style.transform = 'scale(0.9)';
+          
+          // If wrong answer, highlight the correct answer in green
+          if (!isCorrect && this.currentProblem && buttonAnswer === this.currentProblem.correctAnswer) {
+            setTimeout(() => {
+              buttonElement.style.backgroundColor = 'rgba(34, 197, 94, 0.2)';
+              buttonElement.style.borderColor = 'rgb(34, 197, 94)';
+              buttonElement.style.opacity = '1';
+              buttonElement.style.transform = 'scale(1.05)';
+            }, 200);
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error highlighting selected answer:', error);
     }
   }
 
@@ -606,6 +695,12 @@ export class MathFlowGameClass extends BaseGameClass {
       if (this.lives < GAME_CONSTANTS.MAX_LIVES) {
         this.lives++;
       }
+      
+      // Show the correct answer in the equation (for correct answers, don't reveal operands)
+      this.showCorrectAnswerInEquation(true);
+      
+      // Mark that the last answer was correct
+      this.lastAnswerWasWrong = false;
       
       // Validate and update previous answer
       const newPreviousAnswer = this.validateNumber(this.currentProblem.correctAnswer, 'correct answer update');
@@ -625,6 +720,14 @@ export class MathFlowGameClass extends BaseGameClass {
       
       this.updateGameStatus(`Correct!`);
       this.updateLivesDisplay();
+      
+      // Add subtle success animation to the status
+      this.animateStatusMessage('success');
+      
+      // Clear status message after 1.5 seconds
+      setTimeout(() => {
+        this.updateGameStatus('');
+      }, 1500);
       
       // Generate next problem after short delay
       setTimeout(() => {
@@ -648,12 +751,18 @@ export class MathFlowGameClass extends BaseGameClass {
       this.totalMistakes++;
       this.streak = 0;
       
-      // Reduce lives by 1 (can go negative)
-      this.lives--;
+      // Reduce lives by 1, but don't go below 0
+      this.lives = Math.max(0, this.lives - 1);
       
-      // Check if game should end due to no lives (when lives go below 0)
-      if (this.lives < 0) {
-        this.updateGameStatus(`Game Over! No lives remaining. Final score: ${this.gameState.score}`);
+      // Show the correct answer in the equation (for wrong answers, reveal operands)
+      this.showCorrectAnswerInEquation(false);
+      
+      // Mark that the last answer was wrong
+      this.lastAnswerWasWrong = true;
+      
+      // Check if game should end due to no lives (when lives reach 0)
+      if (this.lives === 0) {
+        this.updateGameStatus('Game Over!');
         this.updateLivesDisplay();
         setTimeout(() => {
           this.endGame();
@@ -661,8 +770,16 @@ export class MathFlowGameClass extends BaseGameClass {
         return;
       }
       
-      this.updateGameStatus(`Wrong! The correct answer was ${this.currentProblem.correctAnswer}.`);
+      this.updateGameStatus(`Wrong!`);
       this.updateLivesDisplay();
+      
+      // Add subtle error animation to the status
+      this.animateStatusMessage('error');
+      
+      // Clear status message after 1.5 seconds
+      setTimeout(() => {
+        this.updateGameStatus('');
+      }, 1500);
       
       // Continue with next problem after showing correct answer
       setTimeout(() => {
@@ -690,7 +807,38 @@ export class MathFlowGameClass extends BaseGameClass {
   private updateLivesDisplay(): void {
     const livesCount = document.getElementById('livesCount');
     if (livesCount) {
-      livesCount.textContent = this.lives.toString();
+      // Ensure lives are never displayed as negative
+      const displayLives = Math.max(0, this.lives);
+      const previousLives = parseInt(livesCount.textContent || '0');
+      
+      livesCount.textContent = displayLives.toString();
+      
+      // Add subtle animation when lives change
+      if (displayLives !== previousLives) {
+        const livesDisplay = document.getElementById('livesDisplay');
+        if (livesDisplay) {
+          livesDisplay.style.transition = 'all 0.3s ease-in-out';
+          
+          if (displayLives > previousLives) {
+            // Lives increased (correct answer)
+            livesDisplay.style.transform = 'scale(1.1)';
+            livesDisplay.style.backgroundColor = 'rgba(34, 197, 94, 0.2)';
+            livesDisplay.style.borderColor = 'rgb(34, 197, 94)';
+          } else {
+            // Lives decreased (wrong answer)
+            livesDisplay.style.transform = 'scale(0.9)';
+            livesDisplay.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
+            livesDisplay.style.borderColor = 'rgb(239, 68, 68)';
+          }
+          
+          // Reset after animation
+          setTimeout(() => {
+            livesDisplay.style.transform = 'scale(1)';
+            livesDisplay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            livesDisplay.style.borderColor = 'transparent';
+          }, 400);
+        }
+      }
     }
   }
 
@@ -704,6 +852,101 @@ export class MathFlowGameClass extends BaseGameClass {
     if (gameArea) {
       const distractions = gameArea.querySelectorAll('.distraction');
       distractions.forEach(d => d.remove());
+    }
+  }
+
+  private showCorrectAnswerInEquation(isCorrectAnswer: boolean = false): void {
+    try {
+      if (!this.currentProblem) return;
+
+      const problemContainer = document.getElementById('mathProblem');
+      if (problemContainer) {
+        // Create the equation showing the complete equation with all values revealed
+        let equationDisplay: string;
+        
+        if (isCorrectAnswer) {
+          // For correct answers, show the equation as it was originally presented (don't reveal hidden operands)
+          if (this.gameState.round === 1) {
+            // First round: was "A + B = ?", now show "A + B = result"
+            equationDisplay = `${this.currentProblem.previousAnswer} ${this.currentProblem.operation} ${this.currentProblem.operand} = ${this.currentProblem.correctAnswer}`;
+          } else {
+            // Later rounds: was "? + B = ?", for correct answers still show "? + B = result" (don't reveal the ?)
+            equationDisplay = `? ${this.currentProblem.operation} ${this.currentProblem.operand} = ${this.currentProblem.correctAnswer}`;
+          }
+        } else {
+          // For wrong answers, ALWAYS show the complete equation with all operands revealed
+          // This reveals the hidden "?" from the original question, showing what the correct equation should have been
+          equationDisplay = `${this.currentProblem.previousAnswer} ${this.currentProblem.operation} ${this.currentProblem.operand} = ${this.currentProblem.correctAnswer}`;
+        }
+        
+        // Add smooth transition by fading out, changing content, then fading in
+        problemContainer.style.transition = 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out';
+        problemContainer.style.opacity = '0.7';
+        problemContainer.style.transform = 'scale(1.05)';
+        
+        setTimeout(() => {
+          problemContainer.innerHTML = `
+            <div class="text-center mb-8">
+              <div class="text-3xl font-bold ${isCorrectAnswer ? 'text-green-400' : 'text-red-400'} mb-2 text-center transition-all duration-300">
+                ${equationDisplay}
+              </div>
+            </div>
+          `;
+          
+          // Fade back in with slightly larger scale
+          problemContainer.style.opacity = '1';
+          problemContainer.style.transform = 'scale(1)';
+          
+          // Add a subtle glow effect for correct answers
+          const equationElement = problemContainer.querySelector('div > div');
+          if (equationElement) {
+            equationElement.classList.add('animate-pulse');
+            setTimeout(() => {
+              equationElement.classList.remove('animate-pulse');
+            }, 1000);
+          }
+        }, 150);
+      }
+    } catch (error) {
+      console.error('Error showing correct answer in equation:', error);
+    }
+  }
+
+  private animateStatusMessage(type: 'success' | 'error'): void {
+    try {
+      // Try to find the status message element (this depends on your BaseGameClass implementation)
+      const statusElement = document.querySelector('.game-status, #gameStatus, .status-message');
+      if (statusElement) {
+        const element = statusElement as HTMLElement;
+        
+        // Reset any existing animations
+        element.style.transition = 'all 0.3s ease-in-out';
+        element.style.transform = 'scale(1)';
+        
+        if (type === 'success') {
+          // Subtle green glow and slight scale
+          element.style.color = 'rgb(34, 197, 94)';
+          element.style.textShadow = '0 0 10px rgba(34, 197, 94, 0.5)';
+          element.style.transform = 'scale(1.05)';
+        } else {
+          // Subtle red glow and slight shake
+          element.style.color = 'rgb(239, 68, 68)';
+          element.style.textShadow = '0 0 10px rgba(239, 68, 68, 0.5)';
+          element.style.transform = 'scale(1.02)';
+          
+          // Add a very subtle shake animation
+          element.style.animation = 'subtle-shake 0.5s ease-in-out';
+        }
+        
+        // Reset after animation
+        setTimeout(() => {
+          element.style.transform = 'scale(1)';
+          element.style.textShadow = 'none';
+          element.style.animation = '';
+        }, 500);
+      }
+    } catch (error) {
+      console.error('Error animating status message:', error);
     }
   }
 }

@@ -22,9 +22,9 @@ const instructionSections = [
     color: 'red' as const,
     items: [
       'Start with 0 lives',
-      'Gain 1 life for each correct answer (max 15)',
+      'Gain 1 life for each correct answer (max 5)',
       'Lose 1 life for each wrong answer',
-      'Game ends when you have negative lives'
+      'Game ends when you reach 0 lives (after a wrong answer)'
     ]
   },
   {
@@ -189,5 +189,12 @@ const instructionSections = [
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* Subtle shake animation for wrong answers */
+  @keyframes subtle-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    75% { transform: translateX(2px); }
   }
 </style>
