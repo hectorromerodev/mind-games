@@ -75,7 +75,7 @@ const {
       </div>
 
       <!-- Game Content Slot -->
-      <div id="gameContent" class="mb-8">
+      <div id="gameContent" class="mb-8 game-content-area">
         <slot name="game-content" />
       </div>
 
@@ -90,7 +90,53 @@ const {
   <slot name="modals" />
 </GameLayout>
 
+<script>
+  // Auto-scroll to game section when game starts
+  document.addEventListener('DOMContentLoaded', () => {
+    const startBtn = document.getElementById('startBtn');
+    const gameSection = document.getElementById('gameSection');
+    
+    if (startBtn) {
+      const originalClickHandler = startBtn.onclick;
+      
+      startBtn.addEventListener('click', () => {
+        // Small delay to allow the game section to become visible
+        setTimeout(() => {
+          if (gameSection && gameSection.style.display !== 'none') {
+            // Smooth scroll to the game section
+            gameSection.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        }, 300); // Delay to match the transition duration
+      });
+    }
+    
+    // Also listen for custom game start events
+    window.addEventListener('gameStarted', () => {
+      setTimeout(() => {
+        if (gameSection && gameSection.style.display !== 'none') {
+          gameSection.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }, 300);
+    });
+  });
+</script>
+
 <style>
+  /* Standard game content area height */
+  .game-content-area {
+    min-height: 16rem; /* h-64 equivalent */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
   /* Smooth animations for game transitions */
   .animate-slide-down {
     animation: slideDown 0.6s ease-out;

@@ -12,7 +12,19 @@ const instructionSections = [
       'You\'ll start with a number (e.g., 25)',
       'Use this number in the next calculation',
       'Your answer becomes the next starting number',
-      'Choose the correct answer from 4 options'
+      'Choose the correct answer from 4 options',
+      'Start with 0 lives - get your first answer right!'
+    ]
+  },
+  {
+    title: 'Lives System',
+    icon: '❤️',
+    color: 'red' as const,
+    items: [
+      'Start with 0 lives',
+      'Gain 1 life for each correct answer (max 15)',
+      'Lose 1 life for each wrong answer',
+      'Game ends when you have negative lives'
     ]
   },
   {
@@ -59,19 +71,29 @@ const instructionSections = [
   </div>
   
   <div slot="game-content">
-    <!-- Math Problem Display -->
-    <div id="mathProblem" class="mb-8">
-      <!-- Problem will be inserted here by JavaScript -->
+    <!-- Lives Display -->
+    <div class="absolute top-4 right-4 z-20">
+      <div id="livesDisplay" class="bg-black/50 backdrop-blur-sm rounded-lg px-4 py-2 text-white font-bold">
+        <span class="text-red-400">❤️</span> Lives: <span id="livesCount">0</span>
+      </div>
     </div>
     
-    <!-- Answer Options -->
-    <div id="mathOptions" class="mb-8">
-      <!-- Options will be inserted here by JavaScript -->
-    </div>
-    
-    <!-- Distraction Area (relative positioned for absolute distractions) -->
-    <div class="relative w-full h-32" id="distractionArea">
-      <!-- Distractions will be positioned here -->
+    <!-- Game Content Container with reduced height -->
+    <div class="relative w-full h-64 min-h-64 flex flex-col justify-center items-center">
+      <!-- Distraction Area (absolute positioned to cover entire game area) -->
+      <div class="absolute inset-0 w-full h-full pointer-events-none" id="distractionArea">
+        <!-- Distractions will be positioned here -->
+      </div>
+      
+      <!-- Math Problem Display -->
+      <div id="mathProblem" class="mb-4 relative z-10">
+        <!-- Problem will be inserted here by JavaScript -->
+      </div>
+      
+      <!-- Answer Options -->
+      <div id="mathOptions" class="mb-4 relative z-10">
+        <!-- Options will be inserted here by JavaScript -->
+      </div>
     </div>
   </div>
   
@@ -87,28 +109,51 @@ const instructionSections = [
   document.addEventListener('DOMContentLoaded', () => {
     console.log('Initializing Math Flow game...');
     
-    // Create global game instance
-    window.mathFlowGame = new MathFlowGameClass();
-    
-    // Set up start button
-    const startBtn = document.getElementById('startBtn');
-    if (startBtn) {
-      startBtn.addEventListener('click', () => {
-        console.log('Start button clicked');
-        window.mathFlowGame.startGame();
-      });
+    try {
+      // Create global game instance
+      window.mathFlowGame = new MathFlowGameClass();
+      
+      // Set up start button
+      const startBtn = document.getElementById('startBtn');
+      if (startBtn) {
+        startBtn.addEventListener('click', () => {
+          console.log('Start button clicked');
+          try {
+            window.mathFlowGame.startGame();
+          } catch (error) {
+            console.error('Error starting game:', error);
+            alert('Error starting game. Please refresh the page.');
+          }
+        });
+      }
+      
+      // Set up reset button
+      const resetBtn = document.getElementById('resetBtn');
+      if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+          console.log('Reset button clicked');
+          try {
+            window.mathFlowGame.resetGame();
+          } catch (error) {
+            console.error('Error resetting game:', error);
+            alert('Error resetting game. Please refresh the page.');
+          }
+        });
+      }
+      
+      console.log('Math Flow game initialized successfully');
+    } catch (error) {
+      console.error('Error initializing Math Flow game:', error);
+      alert('Error initializing game. Please refresh the page.');
     }
-    
-    // Set up reset button
-    const resetBtn = document.getElementById('resetBtn');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', () => {
-        console.log('Reset button clicked');
-        window.mathFlowGame.resetGame();
-      });
+  });
+  
+  // Add global error handler
+  window.addEventListener('error', (event) => {
+    console.error('Global error in Math Flow:', event.error);
+    if (event.error.message && event.error.message.includes('mathFlowGame')) {
+      alert('Game error detected. Please refresh the page.');
     }
-    
-    console.log('Math Flow game initialized successfully');
   });
   
   // Add global type declaration for TypeScript
@@ -136,8 +181,8 @@ const instructionSections = [
     75% { transform: translateY(-7px) rotate(1deg); }
   }
   
-  /* Fade in animation for new problems */
-  #mathProblem, #mathOptions {
+  /* Fade in animation for new problems - only on initial load */
+  #mathProblem.new-problem, #mathOptions.new-problem {
     animation: fadeIn 0.5s ease-in;
   }
   
