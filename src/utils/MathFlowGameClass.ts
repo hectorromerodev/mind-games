@@ -556,7 +556,7 @@ export class MathFlowGameClass extends BaseGameClass {
             <div class="flex flex-wrap justify-center items-center gap-4 max-w-4xl mx-auto text-center">
               ${this.currentProblem.options.map((option, index) => `
                 <button 
-                  class="math-option bg-slate-900/10 hover:bg-slate-900/20 border-2 border-slate-300/30 hover:border-purple-400 text-white font-bold py-4 px-6 rounded-lg text-xl transition-all duration-200 transform hover:scale-105 min-w-[120px] text-center"
+                  class="btn btn--game-option btn--game-option--rect"
                   data-answer="${option}"
                   onclick="window.mathFlowGame.selectAnswer(${option})"
                 >
@@ -640,41 +640,31 @@ export class MathFlowGameClass extends BaseGameClass {
       const optionsContainer = document.getElementById('mathOptions');
       if (!optionsContainer) return;
 
-      const buttons = optionsContainer.querySelectorAll('.math-option');
+      const buttons = optionsContainer.querySelectorAll('.btn--game-option');
       buttons.forEach(button => {
         const buttonElement = button as HTMLButtonElement;
         const buttonAnswer = parseInt(buttonElement.dataset.answer || '0');
         
         if (buttonAnswer === selectedAnswer) {
-          // Highlight the selected button
+          // Add BEM modifier classes for selection state
+          buttonElement.classList.add('btn--game-option--selected');
           buttonElement.disabled = true;
-          buttonElement.style.transition = 'all 0.3s ease-in-out';
           
           if (isCorrect) {
-            buttonElement.style.backgroundColor = 'rgba(34, 197, 94, 0.3)'; // green
-            buttonElement.style.borderColor = 'rgb(34, 197, 94)';
-            buttonElement.style.transform = 'scale(1.1)';
-            buttonElement.style.boxShadow = '0 0 20px rgba(34, 197, 94, 0.5)';
+            buttonElement.classList.add('btn--game-option--correct');
           } else {
-            buttonElement.style.backgroundColor = 'rgba(239, 68, 68, 0.3)'; // red
-            buttonElement.style.borderColor = 'rgb(239, 68, 68)';
-            buttonElement.style.transform = 'scale(0.95)';
-            buttonElement.style.boxShadow = '0 0 20px rgba(239, 68, 68, 0.5)';
+            buttonElement.classList.add('btn--game-option--wrong');
           }
         } else {
-          // Dim other buttons
+          // Dim other buttons using BEM modifier class
+          buttonElement.classList.add('btn--game-option--disabled');
           buttonElement.disabled = true;
-          buttonElement.style.transition = 'all 0.3s ease-in-out';
-          buttonElement.style.opacity = '0.5';
-          buttonElement.style.transform = 'scale(0.9)';
           
           // If wrong answer, highlight the correct answer in green
           if (!isCorrect && this.currentProblem && buttonAnswer === this.currentProblem.correctAnswer) {
             setTimeout(() => {
-              buttonElement.style.backgroundColor = 'rgba(34, 197, 94, 0.2)';
-              buttonElement.style.borderColor = 'rgb(34, 197, 94)';
-              buttonElement.style.opacity = '1';
-              buttonElement.style.transform = 'scale(1.05)';
+              buttonElement.classList.remove('btn--game-option--disabled');
+              buttonElement.classList.add('btn--game-option--correct');
             }, 200);
           }
         }

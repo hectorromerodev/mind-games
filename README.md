@@ -89,8 +89,10 @@ Mind Games features a modular, reusable component architecture:
 
 - **Universal Scoring System**: Consistent performance evaluation across all games
 - **Standardized Components**: Reusable UI elements and game layouts
+- **Unified Game Options**: Single button system for all interactive game elements
 - **Type-Safe Game Logic**: TypeScript-based game classes with inheritance
 - **Responsive Design**: Mobile-first approach with Tailwind CSS
+- **BEM Methodology**: Maintainable CSS architecture with component-based styling
 
 ## 📊 **Scoring System**
 

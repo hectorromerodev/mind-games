@@ -106,20 +106,7 @@ export class SimonSaysGame extends BaseGameClass {
 
     for (let i = 0; i < 9; i++) {
       const cell = document.createElement('div');
-      cell.className = 'simon-cell game-cell';
-      cell.style.cssText = `
-        width: 80px;
-        height: 80px;
-        background: rgba(255, 255, 255, 0.1);
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-radius: 12px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        backdrop-filter: blur(10px);
-        transition: all 0.2s ease-in-out;
-      `;
+      cell.className = 'btn btn--game-option btn--game-option--square';
       cell.dataset.index = i.toString();
       cell.addEventListener('click', () => this.cellClick(i));
       innerGrid.appendChild(cell);
@@ -140,18 +127,14 @@ export class SimonSaysGame extends BaseGameClass {
       }
       
       const cellIndex = this.sequence[index];
-      const cells = document.querySelectorAll('.simon-cell');
+      const cells = document.querySelectorAll('.btn--game-option--square');
       const cell = cells[cellIndex] as HTMLElement;
       
       if (cell) {
-        cell.classList.add('active');
-        cell.style.background = 'linear-gradient(45deg, #10b981, #34d399)';
-        cell.style.borderColor = '#10b981';
+        cell.classList.add('btn--game-option--active');
         
         setTimeout(() => {
-          cell.classList.remove('active');
-          cell.style.background = 'rgba(255, 255, 255, 0.1)';
-          cell.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+          cell.classList.remove('btn--game-option--active');
           
           index++;
           setTimeout(showNextCell, 200);
@@ -165,17 +148,15 @@ export class SimonSaysGame extends BaseGameClass {
   cellClick(index: number): void {
     if (this.showingSequence || !this.gameState.gameActive) return;
 
-    const cells = document.querySelectorAll('.simon-cell');
+    const cells = document.querySelectorAll('.btn--game-option--square');
     const cell = cells[index] as HTMLElement;
 
-    // Visual feedback
+    // Visual feedback using BEM modifier classes
     if (cell) {
-      cell.style.background = 'linear-gradient(45deg, #3b82f6, #60a5fa)';
-      cell.style.borderColor = '#3b82f6';
+      cell.classList.add('btn--game-option--clickable');
       
       setTimeout(() => {
-        cell.style.background = 'rgba(255, 255, 255, 0.1)';
-        cell.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+        cell.classList.remove('btn--game-option--clickable');
       }, 200);
     }
 

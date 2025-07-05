@@ -77,13 +77,31 @@ The new system uses a centralized import approach:
 .btn--loading         /* Loading state with spinner */
 ```
 
-**Game-Specific Buttons**
+**Game-Specific Buttons - UNIFIED SYSTEM**
 ```css
-.btn--game-option     /* Game answer options */
-.btn--game-option--selected    /* Selected option */
-.btn--game-option--correct     /* Correct answer */
-.btn--game-option--wrong       /* Wrong answer */
-.btn--game-option--dimmed      /* Dimmed option */
+.btn--game-option               /* Universal game option button */
+.btn--game-option--rect         /* Rectangular variant (for text/numbers) */
+.btn--game-option--square       /* Square variant (for cells/icons) */
+
+/* Game Option States */
+.btn--game-option--selected     /* Selected state */
+.btn--game-option--correct      /* Correct answer state */
+.btn--game-option--wrong        /* Wrong answer state */
+.btn--game-option--disabled     /* Disabled state */
+.btn--game-option--active       /* Active/highlighted state (for sequences) */
+.btn--game-option--clickable    /* Clickable feedback state */
+```
+
+**Usage Examples**
+```html
+<!-- Math Flow Answer Options -->
+<button class="btn btn--game-option btn--game-option--rect">42</button>
+
+<!-- Simon Says Game Cells -->
+<div class="btn btn--game-option btn--game-option--square"></div>
+
+<!-- Future Game Options -->
+<button class="btn btn--game-option btn--game-option--rect">Option A</button>
 ```
 
 ### 2. Game Statistics (`game-stats.css`)

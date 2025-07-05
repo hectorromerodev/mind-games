@@ -142,6 +142,85 @@ We use Block__Element--Modifier naming:
 - **UI States**: `.state-success`, `.state-error`, `.state-warning`
 - **Difficulty**: `.difficulty-easy`, `.difficulty-medium`, `.difficulty-hard`
 
+## Game Option Buttons - Unified System
+
+### Overview
+All interactive game elements (answer options, game cells, etc.) now use a single, unified button system.
+
+### Base Class
+```html
+<button class="btn btn--game-option">Base Game Option</button>
+```
+
+### Variants
+
+#### Rectangular Options (for text/numbers)
+```html
+<!-- Math Flow answer options -->
+<button class="btn btn--game-option btn--game-option--rect">42</button>
+<button class="btn btn--game-option btn--game-option--rect">17</button>
+```
+
+#### Square Options (for cells/icons)
+```html
+<!-- Simon Says game cells -->
+<div class="btn btn--game-option btn--game-option--square"></div>
+<div class="btn btn--game-option btn--game-option--square">🎯</div>
+```
+
+### States
+
+#### Selection and Feedback
+```html
+<!-- Selected state -->
+<button class="btn btn--game-option btn--game-option--selected">Selected</button>
+
+<!-- Correct answer -->
+<button class="btn btn--game-option btn--game-option--correct">Correct!</button>
+
+<!-- Wrong answer -->
+<button class="btn btn--game-option btn--game-option--wrong">Wrong</button>
+
+<!-- Disabled state -->
+<button class="btn btn--game-option btn--game-option--disabled">Disabled</button>
+```
+
+#### Interactive States
+```html
+<!-- Active state (for sequences) -->
+<div class="btn btn--game-option btn--game-option--active">Active</div>
+
+<!-- Clickable feedback -->
+<div class="btn btn--game-option btn--game-option--clickable">Click Me</div>
+```
+
+### JavaScript Integration
+
+#### Math Flow Example
+```javascript
+// Create option buttons
+const button = document.createElement('button');
+button.className = 'btn btn--game-option btn--game-option--rect';
+button.textContent = '42';
+
+// Add state classes
+button.classList.add('btn--game-option--selected');
+button.classList.add('btn--game-option--correct');
+```
+
+#### Simon Says Example
+```javascript
+// Create game cells
+const cell = document.createElement('div');
+cell.className = 'btn btn--game-option btn--game-option--square';
+
+// Add active state for sequence
+cell.classList.add('btn--game-option--active');
+
+// Add clickable state for user interaction
+cell.classList.add('btn--game-option--clickable');
+```
+
 ## Development Guide
 
 ### Adding New Components
