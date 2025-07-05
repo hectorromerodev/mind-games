@@ -51,7 +51,11 @@ export class SimonSaysGame extends BaseGameClass {
     // Wait for transition, then start first round
     setTimeout(() => {
       this.createGrid();
-      this.newRound();
+      // Reset button states after creating grid
+      setTimeout(() => {
+        this.resetAllButtonStates();
+        this.newRound();
+      }, 100);
     }, 1000);
   }
 
@@ -75,6 +79,9 @@ export class SimonSaysGame extends BaseGameClass {
   newRound(): void {
     this.currentStep = 0;
     this.roundStartTime = Date.now();
+
+    // Reset all button states before starting new round
+    this.resetAllButtonStates();
 
     // Ensure sequence length matches round number
     // For round N, we should have N cells in the sequence
@@ -117,6 +124,10 @@ export class SimonSaysGame extends BaseGameClass {
 
   showSequence(): void {
     this.showingSequence = true;
+    
+    // First, reset all button states to ensure clean start
+    this.resetAllButtonStates();
+    
     let index = 0;
     
     const showNextCell = () => {
@@ -153,6 +164,10 @@ export class SimonSaysGame extends BaseGameClass {
 
     // Visual feedback using BEM modifier classes
     if (cell) {
+      // First remove any existing state classes
+      cell.classList.remove('btn--game-option--active', 'btn--game-option--clickable');
+      
+      // Add clickable feedback
       cell.classList.add('btn--game-option--clickable');
       
       setTimeout(() => {
@@ -184,13 +199,22 @@ export class SimonSaysGame extends BaseGameClass {
         this.updateGameStatus('Correct!');
         this.updateDisplay();
         
-        setTimeout(() => this.newRound(), 1500);
+        // Reset all button states before starting next round
+        setTimeout(() => {
+          this.resetAllButtonStates();
+          this.newRound();
+        }, 1500);
       }
     } else {
       // Wrong cell - for this simple implementation, just end game
       this.consecutiveCorrect = 0;
       this.updateGameStatus('Wrong sequence! Game Over');
-      setTimeout(() => this.endGame(), 1500);
+      
+      // Reset button states before ending
+      setTimeout(() => {
+        this.resetAllButtonStates();
+        this.endGame();
+      }, 1500);
     }
   }
 
@@ -207,6 +231,9 @@ export class SimonSaysGame extends BaseGameClass {
     this.showingSequence = false;
     this.consecutiveCorrect = 0;
     this.roundStartTime = 0;
+
+    // Reset all button states before clearing grid
+    this.resetAllButtonStates();
 
     // Clear the game grid
     const grid = document.getElementById('gameGrid');
@@ -357,5 +384,21 @@ export class SimonSaysGame extends BaseGameClass {
     
     // Call parent startGame which will reset round to 1
     super.startGame();
+  }
+
+  private resetAllButtonStates(): void {
+    const cells = document.querySelectorAll('.btn--game-option--square');
+    cells.forEach(cell => {
+      const cellElement = cell as HTMLElement;
+      // Remove all possible state classes
+      cellElement.classList.remove(
+        'btn--game-option--active',
+        'btn--game-option--clickable',
+        'btn--game-option--correct',
+        'btn--game-option--wrong',
+        'btn--game-option--selected',
+        'btn--game-option--disabled'
+      );
+    });
   }
 }
