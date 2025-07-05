@@ -59,7 +59,11 @@ import { createRoute } from '../utils/paths';
       
       <!-- Mobile menu button -->
       <div class="md:hidden">
-        <button type="button" class="text-gray-400 hover:text-white focus:outline-none focus:text-white">
+        <button type="button" 
+                class="text-gray-400 hover:text-white focus:outline-none focus:text-white"
+                id="mobile-menu-button"
+                aria-expanded="false"
+                aria-controls="mobile-menu">
           <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
@@ -67,4 +71,76 @@ import { createRoute } from '../utils/paths';
       </div>
     </div>
   </div>
+  
+  <!-- Mobile menu -->
+  <div class="md:hidden" id="mobile-menu" style="display: none;">
+    <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-black/20 backdrop-blur-md border-t border-white/10">
+      <a href={createRoute('HOME')} class="nav__link--mobile">
+        Home
+      </a>
+      <a href={createRoute('GAMES')} class="nav__link--mobile">
+        Games
+      </a>
+      <div class="relative">
+        <span class="text-gray-400 cursor-not-allowed block px-3 py-2 rounded-md text-base font-medium">
+          Leaderboard
+          <span class="ml-2 text-xs bg-yellow-500 text-yellow-900 px-2 py-1 rounded-full font-bold">
+            Soon
+          </span>
+        </span>
+      </div>
+      <a href={createRoute('ABOUT')} class="nav__link--mobile">
+        About
+      </a>
+      <div class="pt-4 pb-3 border-t border-white/10">
+        <button class="bg-gray-600 cursor-not-allowed text-gray-300 font-bold py-2 px-4 rounded-full text-sm opacity-60 flex items-center w-full justify-center">
+          Sign In
+          <span class="ml-2 text-xs bg-yellow-500 text-yellow-900 px-2 py-1 rounded-full font-bold">
+            Soon
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
 </nav>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    
+    if (mobileMenuButton && mobileMenu) {
+      mobileMenuButton.addEventListener('click', function() {
+        const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true';
+        
+        if (isExpanded) {
+          // Close menu
+          mobileMenu.style.display = 'none';
+          mobileMenuButton.setAttribute('aria-expanded', 'false');
+        } else {
+          // Open menu
+          mobileMenu.style.display = 'block';
+          mobileMenuButton.setAttribute('aria-expanded', 'true');
+        }
+      });
+      
+      // Close menu when clicking on a link
+      const mobileLinks = mobileMenu.querySelectorAll('a');
+      mobileLinks.forEach(link => {
+        link.addEventListener('click', function() {
+          mobileMenu.style.display = 'none';
+          mobileMenuButton.setAttribute('aria-expanded', 'false');
+        });
+      });
+      
+      // Close menu when clicking outside
+      document.addEventListener('click', function(event) {
+        const target = event.target as Node;
+        if (!mobileMenuButton.contains(target) && !mobileMenu.contains(target)) {
+          mobileMenu.style.display = 'none';
+          mobileMenuButton.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+  });
+</script>
