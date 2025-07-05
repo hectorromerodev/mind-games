@@ -10,13 +10,6 @@ interface MathProblem {
   operand?: number;
 }
 
-interface Distraction {
-  text: string;
-  x: number;
-  y: number;
-  id: string;
-}
-
 interface GameDifficulty {
   level: number;
   multiplier: number;
@@ -51,7 +44,6 @@ export class MathFlowGameClass extends BaseGameClass {
   private currentProblem: MathProblem | null = null;
   private previousAnswer: number = 0;
   private streak: number = 0;
-  private distractions: Distraction[] = [];
   private scoreCalculator: ScoreCalculator;
   private questionStartTime: number = 0;
   private totalCorrect: number = 0;
@@ -60,6 +52,16 @@ export class MathFlowGameClass extends BaseGameClass {
   private gameInitialized: boolean = false;
   private lives: number = GAME_CONSTANTS.STARTING_LIVES;
   private lastAnswerWasWrong: boolean = false;
+
+  // Performance: Track active timeouts for cleanup
+  private activeTimeouts: Set<NodeJS.Timeout> = new Set();
+  
+  // Performance: Cache DOM elements to avoid repeated queries
+  private domCache: Map<string, HTMLElement> = new Map();
+  
+  // Stability: Track operation state to prevent double-execution
+  private isProcessingAnswer: boolean = false;
+  private isGeneratingProblem: boolean = false;
 
   constructor() {
     const config: GameConfig = {
@@ -122,6 +124,11 @@ export class MathFlowGameClass extends BaseGameClass {
 
   startGameLogic(): void {
     try {
+      // Stability: Clear any previous state
+      this.clearAllTimeouts();
+      this.resetStateFlags();
+      this.clearDOMCache();
+
       // Safety check: ensure game is properly initialized
       if (!this.gameInitialized) {
         this.initializeGame();
@@ -148,20 +155,37 @@ export class MathFlowGameClass extends BaseGameClass {
       this.updateGameStatus(`Get ready!`);
       this.updateLivesDisplay();
       
-      // Start first problem after a short delay
-      setTimeout(() => {
-        try {
-          this.generateNewProblem();
-          this.generateDistractions();
-        } catch (error) {
-          console.error('Error generating first problem:', error);
-          this.handleGameError("Error starting game. Please try again.");
-        }
-      }, 2000);
+      // Show "Get ready!" for 1.5 seconds, then show round for 1 second, then generate first problem
+      this.safeSetTimeout(() => {
+        if (!this.gameState.gameActive) return; // Stability: Check game is still active
+        
+        this.updateGameStatus(`Round ${this.gameState.round}`);
+        
+        this.safeSetTimeout(() => {
+          if (!this.gameState.gameActive) return; // Stability: Check game is still active
+          
+          try {
+            this.generateNewProblem();
+          } catch (error) {
+            console.error('Error generating first problem:', error);
+            this.handleGameError("Error starting game. Please try again.");
+          }
+        }, 1000);
+      }, 1500);
     } catch (error) {
       console.error('Error in startGameLogic:', error);
       this.handleGameError("Error starting game. Please refresh and try again.");
     }
+  }
+
+  // Override endGame to ensure proper cleanup
+  endGame(): void {
+    // Clear all timeouts and reset flags
+    this.clearAllTimeouts();
+    this.resetStateFlags();
+    
+    // Call parent endGame
+    super.endGame();
   }
 
   endGameLogic(): void {
@@ -277,8 +301,15 @@ export class MathFlowGameClass extends BaseGameClass {
       // Validate previous answer before continuing
       this.previousAnswer = this.validateNumber(this.previousAnswer, 'round previous answer');
       
-      this.generateNewProblem();
-      this.generateDistractions();
+      this.updateGameStatus(`Round ${this.gameState.round}`);
+      
+      // Give time for the round status to be visible before generating problem
+      this.safeSetTimeout(() => {
+        if (!this.gameState.gameActive) {
+          return;
+        }
+        this.generateNewProblem();
+      }, 1000);
     } catch (error) {
       console.error('Error in newRound:', error);
       this.handleGameError("Error generating new round. Please restart.");
@@ -287,56 +318,30 @@ export class MathFlowGameClass extends BaseGameClass {
 
   private generateNewProblem(): void {
     try {
+      // Stability: Prevent concurrent problem generation
+      if (this.isGeneratingProblem || !this.gameState.gameActive) {
+        return;
+      }
+
+      this.isGeneratingProblem = true;
+
       // Validate and sanitize previous answer
       this.previousAnswer = this.validateNumber(this.previousAnswer, 'problem generation previous answer');
       
-      const availableOperations = this.currentDifficulty.operations;
-      const operation = availableOperations[Math.floor(Math.random() * availableOperations.length)];
+      // Select a safe operation
+      const operation = this.selectSafeOperation();
       
       let operand: number;
       let correctAnswer: number;
       let finalOperation = operation;
       
       // Generate safe operand and answer based on operation
-      switch (operation) {
-        case '+':
-          operand = this.generateAdditionOperand();
-          correctAnswer = this.previousAnswer + operand;
-          break;
-        case '-':
-          // Check if subtraction is safe
-          if (this.previousAnswer <= 2) {
-            // Fallback to addition for very small numbers
-            operand = this.generateAdditionOperand();
-            correctAnswer = this.previousAnswer + operand;
-            finalOperation = '+';
-          } else {
-            operand = this.generateSubtractionOperand();
-            correctAnswer = this.previousAnswer - operand;
-            // Double check result is positive
-            if (correctAnswer <= 0) {
-              operand = this.generateAdditionOperand();
-              correctAnswer = this.previousAnswer + operand;
-              finalOperation = '+';
-            }
-          }
-          break;
-        case '*':
-          operand = this.generateMultiplicationOperand();
-          correctAnswer = this.previousAnswer * operand;
-          break;
-        case '/':
-          operand = this.generateDivisionOperand();
-          correctAnswer = this.previousAnswer / operand;
-          break;
-        default:
-          // Fallback to safe addition
-          operand = 1;
-          correctAnswer = this.previousAnswer + operand;
-          finalOperation = '+';
-      }
+      const result = this.generateOperationResult(operation);
+      operand = result.operand;
+      correctAnswer = result.correctAnswer;
+      finalOperation = result.operation;
       
-      // Final validation and capping
+      // Final validation - ensure we're within bounds
       correctAnswer = this.validateNumber(correctAnswer, 'correct answer');
       
       // Generate options
@@ -360,19 +365,30 @@ export class MathFlowGameClass extends BaseGameClass {
 
       this.questionStartTime = Date.now();
       this.displayProblem();
+      
+      this.isGeneratingProblem = false;
     } catch (error) {
       console.error('Error generating new problem:', error);
+      this.isGeneratingProblem = false;
       this.generateFallbackProblem();
     }
   }
 
   private generateAdditionOperand(): number {
-    const maxOperand = Math.min(this.currentDifficulty.maxOperand, GAME_CONSTANTS.MAX_RESULT - this.previousAnswer);
-    return Math.floor(Math.random() * Math.max(maxOperand, 1)) + 1;
+    // Ensure the result won't exceed MAX_RESULT
+    const maxSafeOperand = GAME_CONSTANTS.MAX_RESULT - this.previousAnswer;
+    const maxOperand = Math.min(this.currentDifficulty.maxOperand, maxSafeOperand);
+    
+    // Ensure we have a valid range
+    if (maxOperand < 1) {
+      return 1; // Fallback, but this should trigger a fallback to different operation
+    }
+    
+    return Math.floor(Math.random() * maxOperand) + 1;
   }
 
   private generateSubtractionOperand(): number {
-    // Ensure we have a safe range for subtraction
+    // Ensure we have a safe range for subtraction (result must be positive)
     const maxOperand = Math.min(this.currentDifficulty.maxOperand, this.previousAnswer - 1);
     if (maxOperand <= 0 || this.previousAnswer <= 2) {
       // Can't subtract safely, return 1 as fallback
@@ -382,8 +398,16 @@ export class MathFlowGameClass extends BaseGameClass {
   }
 
   private generateMultiplicationOperand(): number {
-    const maxOperand = Math.min(this.currentDifficulty.maxOperand, Math.floor(GAME_CONSTANTS.MAX_RESULT / this.previousAnswer));
-    return Math.floor(Math.random() * Math.max(maxOperand, 1)) + 2;
+    // Ensure the result won't exceed MAX_RESULT
+    const maxSafeOperand = Math.floor(GAME_CONSTANTS.MAX_RESULT / this.previousAnswer);
+    const maxOperand = Math.min(this.currentDifficulty.maxOperand, maxSafeOperand);
+    
+    // Ensure we have a valid range and minimum of 2 for multiplication
+    if (maxOperand < 2) {
+      return 2; // Fallback, but this should trigger a fallback to different operation
+    }
+    
+    return Math.floor(Math.random() * (maxOperand - 1)) + 2;
   }
 
   private generateDivisionOperand(): number {
@@ -408,24 +432,79 @@ export class MathFlowGameClass extends BaseGameClass {
 
   private generateFallbackProblem(): void {
     try {
+      // Use the safest possible operation based on current previousAnswer
+      let operand: number;
+      let correctAnswer: number;
+      let operation: string;
+      
+      if (this.previousAnswer > 2 && this.previousAnswer <= GAME_CONSTANTS.MAX_RESULT) {
+        // Use subtraction - always safe and keeps numbers manageable
+        operation = '-';
+        operand = Math.min(2, this.previousAnswer - 1);
+        correctAnswer = this.previousAnswer - operand;
+      } else if (this.previousAnswer < GAME_CONSTANTS.MAX_RESULT - 10) {
+        // Use addition for small numbers
+        operation = '+';
+        operand = Math.min(3, GAME_CONSTANTS.MAX_RESULT - this.previousAnswer);
+        correctAnswer = this.previousAnswer + operand;
+      } else {
+        // Use division for large numbers
+        operation = '/';
+        operand = 2;
+        correctAnswer = Math.floor(this.previousAnswer / operand);
+      }
+      
+      // Ensure the result is valid
+      correctAnswer = this.validateNumber(correctAnswer, 'fallback correct answer');
+      
       const questionDisplay = this.gameState.round === 1 
-        ? `${this.previousAnswer} + 1 = ?`
+        ? `${this.previousAnswer} ${operation} ${operand} = ?`
         : (this.lastAnswerWasWrong 
-          ? `${this.previousAnswer} + 1 = ?`  // Show previous answer when last was wrong
-          : `? + 1 = ?`);  // Hide previous answer when last was correct
+          ? `${this.previousAnswer} ${operation} ${operand} = ?`
+          : `? ${operation} ${operand} = ?`);
+        
+      // Generate safe options around the correct answer
+      const options = [correctAnswer];
+      const range = Math.max(3, Math.floor(correctAnswer * 0.2));
+      
+      for (let i = 1; i <= 3; i++) {
+        let wrongAnswer: number;
+        if (i === 1) {
+          wrongAnswer = Math.max(1, correctAnswer - range);
+        } else if (i === 2) {
+          wrongAnswer = Math.min(GAME_CONSTANTS.MAX_RESULT, correctAnswer + range);
+        } else {
+          wrongAnswer = Math.max(1, Math.min(GAME_CONSTANTS.MAX_RESULT, correctAnswer + (i - 2) * Math.floor(range / 2)));
+        }
+        
+        if (!options.includes(wrongAnswer)) {
+          options.push(wrongAnswer);
+        }
+      }
+      
+      // Fill any missing options
+      while (options.length < 4) {
+        const filler = Math.max(1, Math.min(GAME_CONSTANTS.MAX_RESULT, correctAnswer + options.length - 1));
+        if (!options.includes(filler)) {
+          options.push(filler);
+        } else {
+          options.push(Math.max(1, correctAnswer - options.length + 1));
+        }
+      }
+      
+      // Shuffle options
+      for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [options[i], options[j]] = [options[j], options[i]];
+      }
         
       this.currentProblem = {
         question: questionDisplay,
-        correctAnswer: this.previousAnswer + 1,
-        options: [
-          this.previousAnswer + 1,
-          this.previousAnswer + 2,
-          this.previousAnswer + 3,
-          this.previousAnswer + 4
-        ],
-        operation: '+',
+        correctAnswer: correctAnswer,
+        options: options,
+        operation: operation,
         previousAnswer: this.previousAnswer,
-        operand: 1
+        operand: operand
       };
       this.questionStartTime = Date.now();
       this.displayProblem();
@@ -436,10 +515,14 @@ export class MathFlowGameClass extends BaseGameClass {
   }
 
   private generateSafeOptions(correctAnswer: number): number[] {
-    // Safety check: ensure correctAnswer is positive
+    // Safety check: ensure correctAnswer is positive and within bounds
     if (correctAnswer <= 0) {
       console.warn(`Invalid correctAnswer: ${correctAnswer}, using 1`);
       correctAnswer = 1;
+    }
+    if (correctAnswer > GAME_CONSTANTS.MAX_RESULT) {
+      console.warn(`correctAnswer exceeds maximum: ${correctAnswer}, using maximum`);
+      correctAnswer = GAME_CONSTANTS.MAX_RESULT;
     }
     
     const options = [correctAnswer];
@@ -449,27 +532,28 @@ export class MathFlowGameClass extends BaseGameClass {
     const baseRange = Math.max(Math.abs(correctAnswer * 0.3), 2);
     const range = baseRange * difficultyMultiplier;
     
-    // Generate 3 plausible wrong integer answers
+    // Generate 3 plausible wrong integer answers within bounds
     while (options.length < 4) {
       const wrongAnswer = Math.round(correctAnswer + (Math.random() - 0.5) * range * 2);
-      // Ensure wrong answers are positive and under 1000
-      if (!options.includes(wrongAnswer) && wrongAnswer > 0 && wrongAnswer <= 1000) {
+      // Ensure wrong answers are positive and within bounds
+      if (!options.includes(wrongAnswer) && wrongAnswer > 0 && wrongAnswer <= GAME_CONSTANTS.MAX_RESULT) {
         options.push(wrongAnswer);
       }
     }
     
-    // If we couldn't generate enough options under 1000, fill with smaller alternatives
+    // If we couldn't generate enough options within bounds, fill with smaller alternatives
     while (options.length < 4) {
-      const smallerWrong = Math.round(correctAnswer + (Math.random() - 0.5) * Math.min(range, 50));
-      if (!options.includes(smallerWrong) && smallerWrong > 0 && smallerWrong <= 1000) {
+      const smallerRange = Math.min(range, 50);
+      const smallerWrong = Math.round(correctAnswer + (Math.random() - 0.5) * smallerRange);
+      if (!options.includes(smallerWrong) && smallerWrong > 0 && smallerWrong <= GAME_CONSTANTS.MAX_RESULT) {
         options.push(smallerWrong);
       }
     }
     
     // Final safety: if we still don't have enough options, add simple alternatives
     while (options.length < 4) {
-      const safeOption = Math.max(1, correctAnswer + options.length - 2);
-      if (!options.includes(safeOption) && safeOption <= 1000) {
+      const safeOption = Math.max(1, Math.min(correctAnswer + options.length - 2, GAME_CONSTANTS.MAX_RESULT));
+      if (!options.includes(safeOption)) {
         options.push(safeOption);
       }
     }
@@ -483,136 +567,84 @@ export class MathFlowGameClass extends BaseGameClass {
     return options;
   }
 
-  private generateDistractions(): void {
-    this.distractions = [];
-    const distractionTexts = [
-      '🎯', '⭐', '🔥', '💫', '✨', '🌟', '💎', '🎪',
-      '123', '456', '789', '999', '000', '555',
-      'X', 'Y', 'Z', 'A', 'B', 'C', 'D'
-    ];
-
-    // Generate 15-20 distractions randomly across the grid
-    const numDistractions = Math.floor(Math.random() * 6) + 15;
-    
-    for (let i = 0; i < numDistractions; i++) {
-      const text = distractionTexts[Math.floor(Math.random() * distractionTexts.length)];
-      
-      // Random position anywhere in the grid (5-95% to avoid edges)
-      const x = Math.random() * 90 + 5;  // 5-95%
-      const y = Math.random() * 90 + 5;  // 5-95%
-      
-      this.distractions.push({
-        text,
-        x,
-        y,
-        id: `distraction-${i}`
-      });
-    }
-    
-    this.displayDistractions();
-  }
-
   private displayProblem(): void {
     try {
       if (!this.currentProblem) return;
 
-      const problemContainer = document.getElementById('mathProblem');
-      const optionsContainer = document.getElementById('mathOptions');
+      // Performance: Use cached DOM elements
+      const problemContainer = this.getCachedElement('mathProblem');
+      const optionsContainer = this.getCachedElement('mathOptions');
       
+      // Remove animation classes from both containers first
       if (problemContainer) {
-        // Add subtle fade-in effect
-        problemContainer.style.transition = 'opacity 0.4s ease-in-out';
-        problemContainer.style.opacity = '0';
-        
-        setTimeout(() => {
-          if (!this.currentProblem) return;
-          
-          problemContainer.innerHTML = `
-            <div class="text-center mb-8">
-              <div class="text-3xl font-bold text-purple-300 mb-2 text-center transition-all duration-300">
-                ${this.currentProblem.question}
-              </div>
+        problemContainer.classList.remove('new-problem');
+      }
+      if (optionsContainer) {
+        optionsContainer.classList.remove('new-problem');
+      }
+      
+      // Performance: Batch DOM updates
+      if (problemContainer) {
+        problemContainer.innerHTML = `
+          <div class="text-center mb-8">
+            <div class="text-3xl font-bold text-purple-300 mb-2 text-center transition-all duration-300">
+              ${this.currentProblem.question}
             </div>
-          `;
-          
-          // Fade in the new problem
-          problemContainer.style.opacity = '1';
-          
-          // Remove any existing animation classes and add new-problem class
-          problemContainer.classList.remove('new-problem');
-          setTimeout(() => problemContainer.classList.add('new-problem'), 10);
-        }, 200);
+          </div>
+        `;
       }
 
       if (optionsContainer) {
-        // Add subtle fade-in effect for options
-        optionsContainer.style.transition = 'opacity 0.4s ease-in-out';
-        optionsContainer.style.opacity = '0';
-        
-        setTimeout(() => {
-          if (!this.currentProblem) return;
-          
-          optionsContainer.innerHTML = `
-            <div class="flex flex-wrap justify-center items-center gap-4 max-w-4xl mx-auto text-center">
-              ${this.currentProblem.options.map((option, index) => `
-                <button 
-                  class="btn btn--game-option btn--game-option--rect"
-                  data-answer="${option}"
-                  onclick="window.mathFlowGame.selectAnswer(${option})"
-                >
-                  ${option}
-                </button>
-              `).join('')}
-            </div>
-          `;
-          
-          // Fade in the options
-          optionsContainer.style.opacity = '1';
-          
-          // Remove any existing animation classes and add new-problem class
-          optionsContainer.classList.remove('new-problem');
-          setTimeout(() => optionsContainer.classList.add('new-problem'), 10);
-        }, 300); // Slight delay after problem appears
+        // Performance: Use template literals efficiently
+        const optionsHTML = this.currentProblem.options
+          .map((option) => `
+            <button 
+              class="btn btn--game-option btn--game-option--rect"
+              data-answer="${option}"
+              onclick="window.mathFlowGame.selectAnswer(${option})"
+            >
+              ${option}
+            </button>
+          `).join('');
+
+        optionsContainer.innerHTML = `
+          <div class="flex flex-wrap justify-center items-center gap-4 max-w-4xl mx-auto text-center">
+            ${optionsHTML}
+          </div>
+        `;
       }
+      
+      // Performance: Use requestAnimationFrame for smooth animations
+      requestAnimationFrame(() => {
+        if (problemContainer) {
+          problemContainer.classList.add('new-problem');
+        }
+        if (optionsContainer) {
+          optionsContainer.classList.add('new-problem');
+        }
+      });
     } catch (error) {
       console.error('Error displaying problem:', error);
       this.updateGameStatus("Error displaying problem. Please restart game.");
     }
   }
 
-  private displayDistractions(): void {
-    const gameArea = document.getElementById('distractionArea');
-    if (!gameArea) return;
-
-    // Clear existing distractions
-    const existingDistractions = gameArea.querySelectorAll('.distraction');
-    existingDistractions.forEach(d => d.remove());
-
-    // Add new distractions
-    this.distractions.forEach(distraction => {
-      const distractionEl = document.createElement('div');
-      distractionEl.className = 'distraction absolute text-gray-400 text-lg font-bold pointer-events-none select-none opacity-50';
-      distractionEl.style.left = `${distraction.x}%`;
-      distractionEl.style.top = `${distraction.y}%`;
-      distractionEl.textContent = distraction.text;
-      distractionEl.id = distraction.id;
-      
-      gameArea.appendChild(distractionEl);
-    });
-  }
-
   public selectAnswer(selectedAnswer: number | string): void {
     try {
+      // Stability: Prevent race conditions and double-processing
+      if (this.isProcessingAnswer || !this.currentProblem || !this.gameState.gameActive) {
+        return;
+      }
+
+      this.isProcessingAnswer = true;
+
       // Convert to number if it's a string
       const selectedNum = typeof selectedAnswer === 'string' ? parseInt(selectedAnswer) : selectedAnswer;
       
       // Validate inputs
       if (typeof selectedNum !== 'number' || isNaN(selectedNum)) {
         console.error('Invalid selected answer after conversion:', selectedAnswer, '->', selectedNum);
-        return;
-      }
-      
-      if (!this.currentProblem || !this.gameState.gameActive) {
+        this.isProcessingAnswer = false;
         return;
       }
 
@@ -629,8 +661,11 @@ export class MathFlowGameClass extends BaseGameClass {
       }
       
       this.updateDisplay();
+      
+      // Note: isProcessingAnswer is reset in handle methods after completion
     } catch (error) {
       console.error('Error in selectAnswer:', error);
+      this.isProcessingAnswer = false;
       this.handleGameError("Error processing answer. Please try again.");
     }
   }
@@ -662,7 +697,7 @@ export class MathFlowGameClass extends BaseGameClass {
           
           // If wrong answer, highlight the correct answer in green
           if (!isCorrect && this.currentProblem && buttonAnswer === this.currentProblem.correctAnswer) {
-            setTimeout(() => {
+            this.safeSetTimeout(() => {
               buttonElement.classList.remove('btn--game-option--disabled');
               buttonElement.classList.add('btn--game-option--correct');
             }, 200);
@@ -676,12 +711,15 @@ export class MathFlowGameClass extends BaseGameClass {
 
   private handleCorrectAnswer(timeElapsed: number): void {
     try {
-      if (!this.currentProblem) return;
+      if (!this.currentProblem) {
+        this.isProcessingAnswer = false;
+        return;
+      }
       
       this.totalCorrect++;
       this.streak++;
       
-      // Add 1 life for correct answer (up to maximum of 15)
+      // Add 1 life for correct answer (up to maximum)
       if (this.lives < GAME_CONSTANTS.MAX_LIVES) {
         this.lives++;
       }
@@ -708,35 +746,42 @@ export class MathFlowGameClass extends BaseGameClass {
       this.gameState.score += roundScore;
       this.gameState.round++;
       
-      this.updateGameStatus(`Correct!`);
+      // Show round status similar to Simon Says
+      this.updateGameStatus(`Round ${this.gameState.round - 1} - Correct!`);
       this.updateLivesDisplay();
       
       // Add subtle success animation to the status
       this.animateStatusMessage('success');
       
-      // Clear status message after 1.5 seconds
-      setTimeout(() => {
-        this.updateGameStatus('');
-      }, 1500);
-      
       // Generate next problem after short delay
-      setTimeout(() => {
+      this.safeSetTimeout(() => {
+        if (!this.gameState.gameActive) {
+          this.isProcessingAnswer = false;
+          return;
+        }
+        
         try {
           this.newRound();
         } catch (error) {
           console.error('Error generating next round:', error);
           this.handleGameError("Error continuing game. Please restart.");
+        } finally {
+          this.isProcessingAnswer = false;
         }
       }, 1000);
     } catch (error) {
       console.error('Error handling correct answer:', error);
+      this.isProcessingAnswer = false;
       this.handleGameError("Error processing correct answer.");
     }
   }
 
   private handleWrongAnswer(): void {
     try {
-      if (!this.currentProblem) return;
+      if (!this.currentProblem) {
+        this.isProcessingAnswer = false;
+        return;
+      }
       
       this.totalMistakes++;
       this.streak = 0;
@@ -754,9 +799,10 @@ export class MathFlowGameClass extends BaseGameClass {
       if (this.lives === 0) {
         this.updateGameStatus('Game Over!');
         this.updateLivesDisplay();
-        setTimeout(() => {
+        this.safeSetTimeout(() => {
           this.endGame();
         }, 2000);
+        this.isProcessingAnswer = false;
         return;
       }
       
@@ -766,13 +812,13 @@ export class MathFlowGameClass extends BaseGameClass {
       // Add subtle error animation to the status
       this.animateStatusMessage('error');
       
-      // Clear status message after 1.5 seconds
-      setTimeout(() => {
-        this.updateGameStatus('');
-      }, 1500);
-      
       // Continue with next problem after showing correct answer
-      setTimeout(() => {
+      this.safeSetTimeout(() => {
+        if (!this.gameState.gameActive) {
+          this.isProcessingAnswer = false;
+          return;
+        }
+        
         try {
           // Validate and update previous answer with the correct answer
           if (this.currentProblem && typeof this.currentProblem.correctAnswer === 'number') {
@@ -786,10 +832,13 @@ export class MathFlowGameClass extends BaseGameClass {
         } catch (error) {
           console.error('Error generating next round after wrong answer:', error);
           this.handleGameError("Error continuing game. Please restart.");
+        } finally {
+          this.isProcessingAnswer = false;
         }
       }, 2000);
     } catch (error) {
       console.error('Error handling wrong answer:', error);
+      this.isProcessingAnswer = false;
       this.handleGameError("Error processing wrong answer.");
     }
   }
@@ -822,7 +871,7 @@ export class MathFlowGameClass extends BaseGameClass {
           }
           
           // Reset after animation
-          setTimeout(() => {
+          this.safeSetTimeout(() => {
             livesDisplay.style.transform = 'scale(1)';
             livesDisplay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
             livesDisplay.style.borderColor = 'transparent';
@@ -837,8 +886,20 @@ export class MathFlowGameClass extends BaseGameClass {
     const optionsContainer = document.getElementById('mathOptions');
     const gameArea = document.getElementById('distractionArea');
     
-    if (problemContainer) problemContainer.innerHTML = '';
-    if (optionsContainer) optionsContainer.innerHTML = '';
+    if (problemContainer) {
+      problemContainer.innerHTML = '';
+      // Clear any inline styles that might cause conflicts
+      problemContainer.style.opacity = '';
+      problemContainer.style.transition = '';
+      problemContainer.classList.remove('new-problem');
+    }
+    if (optionsContainer) {
+      optionsContainer.innerHTML = '';
+      // Clear any inline styles that might cause conflicts
+      optionsContainer.style.opacity = '';
+      optionsContainer.style.transition = '';
+      optionsContainer.classList.remove('new-problem');
+    }
     if (gameArea) {
       const distractions = gameArea.querySelectorAll('.distraction');
       distractions.forEach(d => d.remove());
@@ -874,7 +935,7 @@ export class MathFlowGameClass extends BaseGameClass {
         problemContainer.style.opacity = '0.7';
         problemContainer.style.transform = 'scale(1.05)';
         
-        setTimeout(() => {
+        this.safeSetTimeout(() => {
           problemContainer.innerHTML = `
             <div class="text-center mb-8">
               <div class="text-3xl font-bold ${isCorrectAnswer ? 'text-green-400' : 'text-red-400'} mb-2 text-center transition-all duration-300">
@@ -891,7 +952,7 @@ export class MathFlowGameClass extends BaseGameClass {
           const equationElement = problemContainer.querySelector('div > div');
           if (equationElement) {
             equationElement.classList.add('animate-pulse');
-            setTimeout(() => {
+            this.safeSetTimeout(() => {
               equationElement.classList.remove('animate-pulse');
             }, 1000);
           }
@@ -925,11 +986,11 @@ export class MathFlowGameClass extends BaseGameClass {
           element.style.transform = 'scale(1.02)';
           
           // Add a very subtle shake animation
-          element.style.animation = 'subtle-shake 0.5s ease-in-out';
+          element.style.animation = 'shakeSubtle 0.5s ease-in-out';
         }
         
         // Reset after animation
-        setTimeout(() => {
+        this.safeSetTimeout(() => {
           element.style.transform = 'scale(1)';
           element.style.textShadow = 'none';
           element.style.animation = '';
@@ -938,5 +999,212 @@ export class MathFlowGameClass extends BaseGameClass {
     } catch (error) {
       console.error('Error animating status message:', error);
     }
+  }
+
+  private isOperationViable(operation: string): boolean {
+    switch (operation) {
+      case '+':
+        return this.previousAnswer < GAME_CONSTANTS.MAX_RESULT;
+      case '-':
+        return this.previousAnswer > 2;
+      case '*':
+        return this.previousAnswer * 2 <= GAME_CONSTANTS.MAX_RESULT;
+      case '/':
+        return this.previousAnswer > 1 && this.findSafeDivisors(this.previousAnswer).length > 1;
+      default:
+        return false;
+    }
+  }
+
+  private selectSafeOperation(): string {
+    const availableOperations = this.currentDifficulty.operations;
+    const viableOperations = availableOperations.filter(op => this.isOperationViable(op));
+    
+    // If no operations are viable, force a safe fallback
+    if (viableOperations.length === 0) {
+      if (this.previousAnswer > 2) {
+        return '-'; // Subtraction is almost always safe
+      } else if (this.previousAnswer < GAME_CONSTANTS.MAX_RESULT) {
+        return '+'; // Addition with small numbers
+      } else {
+        return '/'; // Division as last resort
+      }
+    }
+    
+    // Return a random viable operation
+    return viableOperations[Math.floor(Math.random() * viableOperations.length)];
+  }
+
+  // Performance: DOM element caching system
+  private getCachedElement(id: string): HTMLElement | null {
+    if (this.domCache.has(id)) {
+      const element = this.domCache.get(id)!;
+      // Verify element is still in DOM
+      if (document.body.contains(element)) {
+        return element;
+      } else {
+        this.domCache.delete(id);
+      }
+    }
+    
+    const element = document.getElementById(id);
+    if (element) {
+      this.domCache.set(id, element);
+    }
+    return element;
+  }
+
+  // Performance: Timeout management
+  private safeSetTimeout(callback: () => void, delay: number): NodeJS.Timeout {
+    const timeoutId = setTimeout(() => {
+      this.activeTimeouts.delete(timeoutId);
+      callback();
+    }, delay);
+    this.activeTimeouts.add(timeoutId);
+    return timeoutId;
+  }
+
+  // Stability: Clear all active timeouts
+  private clearAllTimeouts(): void {
+    this.activeTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+    this.activeTimeouts.clear();
+  }
+
+  // Stability: Reset all state flags
+  private resetStateFlags(): void {
+    this.isProcessingAnswer = false;
+    this.isGeneratingProblem = false;
+  }
+
+  // Performance: Clear DOM cache
+  private clearDOMCache(): void {
+    this.domCache.clear();
+  }
+
+  // Performance: Refactored operation generation for better maintainability
+  private generateOperationResult(operation: string): { operand: number; correctAnswer: number; operation: string } {
+    let operand: number;
+    let correctAnswer: number;
+    let finalOperation = operation;
+
+    switch (operation) {
+      case '+':
+        // Check if addition is possible without exceeding MAX_RESULT
+        if (this.previousAnswer >= GAME_CONSTANTS.MAX_RESULT) {
+          // Fallback to subtraction if possible, otherwise division
+          if (this.previousAnswer > 2) {
+            operand = this.generateSubtractionOperand();
+            correctAnswer = this.previousAnswer - operand;
+            finalOperation = '-';
+          } else {
+            operand = 2;
+            correctAnswer = Math.floor(this.previousAnswer / operand);
+            finalOperation = '/';
+          }
+        } else {
+          operand = this.generateAdditionOperand();
+          correctAnswer = this.previousAnswer + operand;
+          // Double-check the result
+          if (correctAnswer > GAME_CONSTANTS.MAX_RESULT) {
+            operand = GAME_CONSTANTS.MAX_RESULT - this.previousAnswer;
+            correctAnswer = this.previousAnswer + operand;
+          }
+        }
+        break;
+      case '-':
+        // Check if subtraction is safe
+        if (this.previousAnswer <= 2) {
+          // Fallback to addition for very small numbers
+          if (this.previousAnswer < GAME_CONSTANTS.MAX_RESULT) {
+            operand = this.generateAdditionOperand();
+            correctAnswer = this.previousAnswer + operand;
+            finalOperation = '+';
+          } else {
+            // Use division as last resort
+            operand = 2;
+            correctAnswer = Math.floor(this.previousAnswer / operand);
+            finalOperation = '/';
+          }
+        } else {
+          operand = this.generateSubtractionOperand();
+          correctAnswer = this.previousAnswer - operand;
+          // Double check result is positive
+          if (correctAnswer <= 0) {
+            if (this.previousAnswer < GAME_CONSTANTS.MAX_RESULT) {
+              operand = this.generateAdditionOperand();
+              correctAnswer = this.previousAnswer + operand;
+              finalOperation = '+';
+            } else {
+              operand = 2;
+              correctAnswer = Math.floor(this.previousAnswer / operand);
+              finalOperation = '/';
+            }
+          }
+        }
+        break;
+      case '*':
+        // Check if multiplication is safe
+        if (this.previousAnswer * 2 > GAME_CONSTANTS.MAX_RESULT) {
+          // Fallback to addition or subtraction
+          if (this.previousAnswer < GAME_CONSTANTS.MAX_RESULT) {
+            operand = this.generateAdditionOperand();
+            correctAnswer = this.previousAnswer + operand;
+            finalOperation = '+';
+          } else if (this.previousAnswer > 2) {
+            operand = this.generateSubtractionOperand();
+            correctAnswer = this.previousAnswer - operand;
+            finalOperation = '-';
+          } else {
+            operand = 2;
+            correctAnswer = Math.floor(this.previousAnswer / operand);
+            finalOperation = '/';
+          }
+        } else {
+          operand = this.generateMultiplicationOperand();
+          correctAnswer = this.previousAnswer * operand;
+          // Double-check the result
+          if (correctAnswer > GAME_CONSTANTS.MAX_RESULT) {
+            // Try smaller operand
+            operand = Math.max(2, Math.floor(GAME_CONSTANTS.MAX_RESULT / this.previousAnswer));
+            correctAnswer = this.previousAnswer * operand;
+            // If still too large, fallback to addition
+            if (correctAnswer > GAME_CONSTANTS.MAX_RESULT) {
+              if (this.previousAnswer < GAME_CONSTANTS.MAX_RESULT) {
+                operand = this.generateAdditionOperand();
+                correctAnswer = this.previousAnswer + operand;
+                finalOperation = '+';
+              } else {
+                operand = this.generateSubtractionOperand();
+                correctAnswer = this.previousAnswer - operand;
+                finalOperation = '-';
+              }
+            }
+          }
+        }
+        break;
+      case '/':
+        operand = this.generateDivisionOperand();
+        correctAnswer = this.previousAnswer / operand;
+        // Division should never exceed the previous answer, so it's naturally safe
+        // But ensure we get an integer result
+        correctAnswer = Math.floor(correctAnswer);
+        if (correctAnswer < 1) {
+          correctAnswer = 1;
+        }
+        break;
+      default:
+        // Fallback to safe addition
+        if (this.previousAnswer < GAME_CONSTANTS.MAX_RESULT) {
+          operand = 1;
+          correctAnswer = this.previousAnswer + operand;
+          finalOperation = '+';
+        } else {
+          operand = 1;
+          correctAnswer = this.previousAnswer - operand;
+          finalOperation = '-';
+        }
+    }
+
+    return { operand, correctAnswer, operation: finalOperation };
   }
 }

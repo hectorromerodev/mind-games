@@ -39,15 +39,6 @@ const instructionSections = [
     ]
   },
   {
-    title: 'Challenge',
-    icon: '⚠️',
-    color: 'orange' as const,
-    items: [
-      'Ignore the distracting numbers and symbols around the edges',
-      'Focus only on the main calculation in the center!'
-    ]
-  },
-  {
     title: 'Scoring',
     icon: '📊',
     color: 'green' as const,
@@ -63,7 +54,7 @@ const instructionSections = [
 <BaseGame 
   gameTitle="Math Flow"
   gameIcon="➕"
-  description="Use your answer from the previous calculation to perform the current calculations. Ignore the distractions!"
+  description="Use your answer from the previous calculation to perform the current calculations. Keep the flow going!"
   maxTime={120}
 >
   <div slot="instructions-content">
@@ -78,13 +69,8 @@ const instructionSections = [
       </div>
     </div>
     
-    <!-- Game Content Container with reduced height -->
+    <!-- Game Content Container -->
     <div class="relative w-full h-64 min-h-64 flex flex-col justify-center items-center">
-      <!-- Distraction Area (absolute positioned to cover entire game area) -->
-      <div class="absolute inset-0 w-full h-full pointer-events-none" id="distractionArea">
-        <!-- Distractions will be positioned here -->
-      </div>
-      
       <!-- Math Problem Display -->
       <div id="mathProblem" class="mb-4 relative z-10">
         <!-- Problem will be inserted here by JavaScript -->
@@ -165,18 +151,6 @@ const instructionSections = [
 </script>
 
 <style>
-  .distraction {
-    animation: float 3s ease-in-out infinite;
-    transform-origin: center;
-  }
-  
-  @keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    25% { transform: translateY(-5px) rotate(2deg); }
-    50% { transform: translateY(-2px) rotate(-1deg); }
-    75% { transform: translateY(-7px) rotate(1deg); }
-  }
-  
   /* Fade in animation for new problems - only on initial load */
   #mathProblem.new-problem, #mathOptions.new-problem {
     animation: fadeIn 0.5s ease-in;
