@@ -1,7 +1,7 @@
 ---
 export interface Props {
-  variant?: 'primary' | 'secondary' | 'reset' | 'pause' | 'start';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'neutral' | 'reset' | 'game-option' | 'game-option-correct' | 'game-option-wrong';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   disabled?: boolean;
   id?: string;
   onClick?: string;
@@ -17,20 +17,26 @@ const {
   class: additionalClass = ''
 } = Astro.props;
 
-const baseClasses = 'font-bold rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg border border-white/20';
+const baseClasses = 'btn-base';
 
 const variantClasses = {
-  primary: 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white',
-  secondary: 'bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border-white/40',
-  reset: 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white',
-  pause: 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white',
-  start: 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white'
+  primary: 'btn-primary',
+  secondary: 'btn-secondary',
+  success: 'btn-success',
+  warning: 'btn-warning',
+  danger: 'btn-danger',
+  neutral: 'btn-neutral',
+  reset: 'btn-reset',
+  'game-option': 'btn-game-option',
+  'game-option-correct': 'btn-game-option-correct',
+  'game-option-wrong': 'btn-game-option-wrong'
 };
 
 const sizeClasses = {
-  sm: 'py-2 px-4 text-sm',
-  md: 'py-3 px-6 text-base',
-  lg: 'py-4 px-8 text-lg'
+  sm: 'btn-sm',
+  md: 'btn-md',
+  lg: 'btn-lg',
+  xl: 'btn-xl'
 };
 
 const buttonClasses = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${additionalClass}`;

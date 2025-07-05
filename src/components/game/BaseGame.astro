@@ -29,7 +29,7 @@ const {
   description={description}
 >
   <!-- Start Game Section -->
-  <div id="startSection" class="transition-all duration-700 ease-in-out">
+  <div id="startSection" class="transition-smooth">
     <StartGame 
       gameTitle={gameTitle}
       buttonText="Start Game"
@@ -38,12 +38,12 @@ const {
     
     <!-- Instructions Slot -->
     {showInstructions && (
-      <div id="instructionsContainer" class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 text-left transition-all duration-500 hover:bg-white/15">
+      <div id="instructionsContainer" class="glass-card--instructions">
         <slot name="instructions">
-          <h3 class="text-lg font-bold text-white mb-3">
+          <h3 class="heading-tertiary">
             How to Play {gameTitle}:
           </h3>
-          <div class="text-gray-300">
+          <div class="text-description">
             <slot name="instructions-content" />
           </div>
         </slot>
@@ -52,7 +52,7 @@ const {
   </div>
 
   <!-- Game Section -->
-  <div id="gameSection" class="opacity-0 transform translate-y-8 transition-all duration-700 ease-in-out" style="display: none;">
+  <div id="gameSection" class="opacity-0 transform translate-y-8 transition-smooth" style="display: none;">
     <!-- Game Stats -->
     {showStats && (
       <div class="animate-slide-down">
@@ -66,10 +66,10 @@ const {
     )}
 
     <!-- Game Container -->
-    <div class="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20 text-center animate-slide-up">
+    <div class="glass-card--game">
       <!-- Game Status -->
       <div id="gameStatus" class="mb-6 text-center">
-        <h2 id="statusMessage" class="text-2xl font-bold text-white mb-4 transition-all duration-300">
+        <h2 id="statusMessage" class="heading-secondary transition-smooth">
           <slot name="status-message">Get ready...</slot>
         </h2>
       </div>

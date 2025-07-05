@@ -7,7 +7,7 @@ export interface Props {
   customButtons?: Array<{
     text: string;
     id: string;
-    variant: 'primary' | 'secondary' | 'reset' | 'pause' | 'start';
+    variant: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'neutral' | 'reset';
     onClick?: string;
   }>;
 }
@@ -32,7 +32,7 @@ const {
   
   {showPause && (
     <Button 
-      variant="pause" 
+      variant="neutral" 
       id="pauseBtn"
       size="md"
     >

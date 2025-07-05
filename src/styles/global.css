@@ -1,1 +1,4 @@
 @import "tailwindcss";
+
+/* Import custom component classes */
+@import "./components/index.css";

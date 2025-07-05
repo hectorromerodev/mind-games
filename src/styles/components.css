@@ -1,0 +1,12 @@
+/**
+ * Mind Games - Legacy Component Import
+ * 
+ * This file has been refactored to use a modular component system.
+ * All components are now organized in separate files with BEM methodology.
+ * 
+ * @deprecated This file is kept for backward compatibility.
+ * Please use the new modular system in /src/styles/components/index.css
+ */
+
+/* Import the new modular component system */
+@import './components/index.css';

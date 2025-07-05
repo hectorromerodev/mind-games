@@ -1,0 +1,37 @@
+/**
+ * Mind Games - Component System
+ * Design system with modular component architecture
+ * 
+ * This file imports all component-specific CSS files using a modular BEM approach.
+ * Each component has its own CSS file with naming conventions.
+ * 
+ * Architecture:
+ * - Glass UI components (glass morphism effects)
+ * - Button system (already migrated to BEM)
+ * - Game Stats system (already migrated to BEM)
+ * - Game UI components (game-specific interfaces)
+ * - Game Card components (card layouts and interactions)
+ * - Navigation components (navigation and back buttons)
+ * - Typography system (headings, text, and brand elements)
+ * - Layout system (containers, grids, and flex utilities)
+ * - Animation system (transitions and keyframe animations)
+ * - State system (status indicators and utility classes)
+ */
+
+/* Core Component Systems */
+@import './button.css';
+@import './game-stats.css';
+
+/* UI Component Systems */
+@import './glass.css';
+@import './game-ui.css';
+@import './game-card.css';
+@import './navigation.css';
+
+/* Typography & Layout */
+@import './typography.css';
+@import './layout.css';
+
+/* Interaction & Animation */
+@import './animations.css';
+@import './states.css';

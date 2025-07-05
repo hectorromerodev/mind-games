@@ -25,6 +25,40 @@ Test your arithmetic skills with chained calculations. Features:
 - Pattern Recognition
 - Logic Puzzles
 
+## 🏗️ **Architecture**
+
+### Modern Component System
+Mind Games features a component system:
+
+```
+src/styles/components/
+├── index.css           # Main import file
+├── button.css          # Button system (BEM)
+├── game-stats.css      # Game statistics (BEM)
+├── glass.css           # Glass morphism effects
+├── game-ui.css         # Game UI components
+├── game-card.css       # Game card components
+├── navigation.css      # Navigation components
+├── typography.css      # Typography system
+├── layout.css          # Layout and grid system
+├── animations.css      # Animation utilities
+└── states.css          # State management classes
+```
+
+**Benefits:**
+- 🎯 **BEM Methodology**: Professional naming conventions
+- 🔍 **Easy to Find**: Component-specific CSS files
+- 📈 **Maintainable**: Clear separation of concerns
+- ⚡ **Performance**: Optimized imports and minimal CSS
+- 🚀 **Developer Experience**: Comprehensive documentation
+
+### Tech Stack
+- **Framework**: Astro 5.0
+- **Styling**: Tailwind CSS 4.0 + Custom Component System
+- **Language**: TypeScript
+- **Package Manager**: Bun
+- **Deployment**: GitHub Pages
+
 ## 🚀 **Quick Start**
 
 ```bash
@@ -110,6 +144,74 @@ See [GAME_ARCHITECTURE.md](./GAME_ARCHITECTURE.md) for detailed instructions.
 - [Scoring System](./SCORING_SYSTEM.md) - Universal scoring framework
 - [Component IDs](./COMPONENT_IDS.md) - Standardized element identification
 - [Deployment Guide](./DEPLOYMENT.md) - GitHub Pages deployment setup and configuration
+
+## 📚 **Component System Documentation**
+
+### Using Components
+```html
+<!-- Buttons -->
+<button class="btn btn--primary btn--lg">Play Game</button>
+<button class="btn btn--start btn--xl">Start Game</button>
+
+<!-- Game Cards -->
+<div class="game-card">
+  <div class="game-card__header">
+    <h3 class="game-card__title">Math Challenge</h3>
+  </div>
+  <div class="game-card__body">
+    <p class="game-card__description">Test your skills...</p>
+  </div>
+</div>
+
+<!-- Game Statistics -->
+<div class="game-stats">
+  <div class="game-stats__card">
+    <div class="game-stats__value">42</div>
+    <div class="game-stats__label">Score</div>
+  </div>
+</div>
+```
+
+### Component Reference
+- **[Component System Guide](docs/COMPONENT_SYSTEM.md)**: Complete component reference
+- **[Migration Plan](docs/MIGRATION_PLAN.md)**: Migration documentation
+- **[Component Classes](docs/COMPONENT_CLASSES.md)**: Detailed API documentation
+
+### Development Guidelines
+1. **Follow BEM methodology**: `block__element--modifier`
+2. **Use component-specific files**: Keep styles organized
+3. **Document new components**: Update documentation
+4. **Test thoroughly**: Ensure cross-browser compatibility
+
+## 🛠️ **Development**
+
+### Project Structure
+```
+src/
+├── components/         # Reusable UI components
+│   ├── ui/            # Basic UI elements
+│   ├── game/          # Game-specific components
+│   └── GameCard.astro # Game listing cards
+├── layouts/           # Page layouts
+├── pages/             # Route pages
+├── styles/            # CSS and component styles
+│   └── components/    # Modular component CSS
+├── utils/             # Utility functions
+└── assets/           # Static assets
+```
+
+### Adding New Games
+1. Create game component in `src/components/game/`
+2. Add game page in `src/pages/games/`
+3. Update game listing in `src/pages/games/index.astro`
+4. Follow scoring system patterns
+5. Use existing UI components
+
+### CSS Architecture
+- **Modular Components**: Each component has its own CSS file
+- **BEM Methodology**: Professional naming conventions
+- **Tailwind Integration**: Custom components extend Tailwind
+- **Performance Optimized**: Tree-shaking and minimal output
 
 ## 🤝 **Contributing**
 

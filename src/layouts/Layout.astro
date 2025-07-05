@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import "../styles/components/index.css";
 import Navigation from "../components/Navigation.astro";
 import { createAssetPath } from '../utils/paths';
 
@@ -20,7 +21,7 @@ const { title = "Mind Games - Challenge Your Mind" } = Astro.props;
 		<meta name="description" content="Challenge your mind with brain-twisting puzzles and games designed to push your cognitive limits." />
 		<title>{title}</title>
 	</head>
-	<body class="bg-gray-900 text-white">
+	<body class="layout-body">
 		<Navigation />
 		<main>
 			<slot />

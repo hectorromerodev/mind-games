@@ -42,30 +42,30 @@ if (level) {
 }
 ---
 
-<div class="flex justify-center gap-4 md:gap-8 mb-8 flex-wrap">
+<div class="game-stats">
   <!-- Round/Level -->
-  <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 md:p-4 text-center border border-white/20 min-w-[80px]">
-    <div class="text-xl md:text-2xl font-bold text-white" id="round">{round}</div>
-    <div class="text-gray-300 text-xs md:text-sm">Round</div>
+  <div class="game-stats__card">
+    <div class="game-stats__value" id="round">{round}</div>
+    <div class="game-stats__label">Round</div>
   </div>
   
   <!-- Score -->
-  <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 md:p-4 text-center border border-white/20 min-w-[80px]">
-    <div class="text-xl md:text-2xl font-bold text-white" id="score">{score.toLocaleString()}</div>
-    <div class="text-gray-300 text-xs md:text-sm">Score</div>
+  <div class="game-stats__card">
+    <div class="game-stats__value" id="score">{score.toLocaleString()}</div>
+    <div class="game-stats__label">Score</div>
   </div>
   
   <!-- Timer -->
-  <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 md:p-4 text-center border border-white/20 min-w-[80px]">
-    <div class={`text-xl md:text-2xl font-bold ${timeColor}`} id="timer">{timeDisplay}</div>
-    <div class="text-gray-300 text-xs md:text-sm">Time Left</div>
+  <div class="game-stats__card">
+    <div class={`game-stats__value ${timeColor}`} id="timer">{timeDisplay}</div>
+    <div class="game-stats__label">Time Left</div>
   </div>
   
   <!-- Level (only show when game is finished - exclude Playing/Ready states) -->
   {level && !level.includes('Playing') && !level.includes('Ready') && (
-    <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 md:p-4 text-center border border-white/20 min-w-[120px]">
-      <div class={`text-sm md:text-base font-bold ${levelColor}`} id="level">{level}</div>
-      <div class="text-gray-300 text-xs md:text-sm">Performance</div>
+    <div class="game-stats__card game-stats__card--wide">
+      <div class={`game-stats__value--sm ${levelColor}`} id="level">{level}</div>
+      <div class="game-stats__label">Performance</div>
     </div>
   )}
 </div>

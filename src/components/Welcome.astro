@@ -3,51 +3,52 @@ import { createRoute } from '../utils/paths';
 ---
 
 <div class="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
-  <div class="text-center px-6 py-12">
-    <!-- Main Title -->
-    <h1 class="text-6xl md:text-8xl font-bold text-white mb-6 animate-pulse">
-      <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-        Mind
-      </span>
-      <span class="text-white">Games</span>
-    </h1>
-    
-    <!-- Subtitle -->
-    <p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto">
-      Challenge your intellect with brain-twisting puzzles and games designed to push your cognitive limits
-    </p>
-    
-    <!-- Features Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-4xl mx-auto">
-      <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-        <div class="text-4xl mb-4">🧩</div>
-        <h3 class="text-lg font-semibold text-white mb-2">Puzzle Games</h3>
-        <p class="text-gray-300 text-sm">Logic puzzles to test your problem-solving skills</p>
+  <div class="container-main">
+    <div class="text-center px-6 py-12">
+      <!-- Main Title -->
+      <h1 class="text-6xl md:text-8xl font-bold text-white mb-6 animate-pulse">
+        <span class="text-brand">
+          Mind
+        </span>
+        <span class="text-white">Games</span>
+      </h1>
+      
+      <!-- Subtitle -->
+      <p class="text-description--lg mb-8 max-w-2xl mx-auto">
+        Challenge your intellect with brain-twisting puzzles and games designed to push your cognitive limits
+      </p>
+      
+      <!-- Features Grid -->
+      <div class="grid-games mb-12 max-w-4xl mx-auto">
+        <div class="glass-card">
+          <div class="text-4xl mb-4">🧩</div>
+          <h3 class="heading-tertiary">Puzzle Games</h3>
+          <p class="text-description">Logic puzzles to test your problem-solving skills</p>
+        </div>
+        
+        <div class="glass-card">
+          <div class="text-4xl mb-4">🧠</div>
+          <h3 class="heading-tertiary">Memory Games</h3>
+          <p class="text-description">Enhance your memory with pattern recognition</p>
+        </div>
+        
+        <div class="glass-card">
+          <div class="text-4xl mb-4">⚡</div>
+          <h3 class="heading-tertiary">Speed Challenges</h3>
+          <p class="text-description">Test your quick thinking and reaction time</p>
+        </div>
       </div>
       
-      <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-        <div class="text-4xl mb-4">🧠</div>
-        <h3 class="text-lg font-semibold text-white mb-2">Memory Games</h3>
-        <p class="text-gray-300 text-sm">Enhance your memory with pattern recognition</p>
-      </div>
-      
-      <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-        <div class="text-4xl mb-4">⚡</div>
-        <h3 class="text-lg font-semibold text-white mb-2">Speed Challenges</h3>
-        <p class="text-gray-300 text-sm">Test your quick thinking and reaction time</p>
-      </div>
-    </div>
-    
-    <!-- Call to Action Buttons -->
-    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-      <a href={createRoute('GAMES')} class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
-        Start Playing
-      </a>
-      
-      <div class="relative group">
-        <button class="border-2 border-gray-500 text-gray-400 cursor-not-allowed font-bold py-4 px-8 rounded-full text-lg flex items-center opacity-60">
-          View Leaderboard
-          <span class="ml-2 text-xs bg-yellow-500 text-yellow-900 px-2 py-1 rounded-full font-bold">
+      <!-- Call to Action Buttons -->
+      <div class="flex-game-controls">
+        <a href={createRoute('GAMES')} class="btn btn--start btn--xl">
+          Start Playing
+        </a>
+        
+        <div class="relative group">
+          <button class="btn btn--secondary btn--xl opacity-60 cursor-not-allowed">
+            View Leaderboard
+            <span class="ml-2 text-xs bg-yellow-500 text-yellow-900 px-2 py-1 rounded-full font-bold">
             Soon
           </span>
         </button>

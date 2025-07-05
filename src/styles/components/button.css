@@ -1,0 +1,258 @@
+/**
+ * Button Component Styles
+ * Following BEM methodology for clear, maintainable CSS
+ */
+
+@layer components {
+  /* ========================================
+     BUTTON BASE
+     ======================================== */
+
+  .btn {
+    font-weight: 700;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+    transform: scale(1);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+  }
+
+  .btn:hover {
+    transform: scale(1.05);
+  }
+
+  .btn:active {
+    transform: scale(0.95);
+  }
+
+  /* ========================================
+     BUTTON VARIANTS
+     ======================================== */
+
+  .btn--primary {
+    background: linear-gradient(to right, #9333ea, #2563eb);
+    color: white;
+  }
+
+  .btn--primary:hover {
+    background: linear-gradient(to right, #7c3aed, #1d4ed8);
+  }
+
+  .btn--secondary {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+
+  .btn--secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .btn--success {
+    background: linear-gradient(to right, #10b981, #059669);
+    color: white;
+  }
+
+  .btn--success:hover {
+    background: linear-gradient(to right, #059669, #047857);
+  }
+
+  .btn--warning {
+    background: linear-gradient(to right, #f59e0b, #d97706);
+    color: white;
+  }
+
+  .btn--warning:hover {
+    background: linear-gradient(to right, #d97706, #b45309);
+  }
+
+  .btn--danger {
+    background: linear-gradient(to right, #ef4444, #dc2626);
+    color: white;
+  }
+
+  .btn--danger:hover {
+    background: linear-gradient(to right, #dc2626, #b91c1c);
+  }
+
+  .btn--neutral {
+    background: linear-gradient(to right, #6b7280, #4b5563);
+    color: white;
+  }
+
+  .btn--neutral:hover {
+    background: linear-gradient(to right, #4b5563, #374151);
+  }
+
+  .btn--reset {
+    background: linear-gradient(to right, #f97316, #ef4444);
+    color: white;
+  }
+
+  .btn--reset:hover {
+    background: linear-gradient(to right, #ea580c, #dc2626);
+  }
+
+  .btn--start {
+    background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
+    color: white;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  .btn--start:hover {
+    background: linear-gradient(135deg, #6d28d9 0%, #1d4ed8 100%);
+    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.4);
+  }
+
+  .btn--start:active {
+    transform: scale(0.95);
+  }
+
+  .btn--back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(15, 23, 42, 0.1);
+    backdrop-filter: blur(12px);
+    color: white;
+    font-weight: 500;
+    border: 1px solid rgba(226, 232, 240, 0.2);
+  }
+
+  .btn--back:hover {
+    background: rgba(15, 23, 42, 0.2);
+    border-color: rgba(226, 232, 240, 0.4);
+    transform: translateY(-1px) scale(1);
+  }
+
+  /* ========================================
+     BUTTON SIZES
+     ======================================== */
+
+  .btn--sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .btn--md {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .btn--lg {
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+  }
+
+  .btn--xl {
+    padding: 1.25rem 2.5rem;
+    font-size: 1.25rem;
+  }
+
+  /* ========================================
+     BUTTON STATES
+     ======================================== */
+
+  .btn--disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn--disabled:hover {
+    transform: none;
+  }
+
+  .btn--loading {
+    position: relative;
+    color: transparent;
+  }
+
+  .btn--loading::after {
+    content: '';
+    position: absolute;
+    width: 1rem;
+    height: 1rem;
+    top: 50%;
+    left: 50%;
+    margin-left: -0.5rem;
+    margin-top: -0.5rem;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: button-loading-spin 1s ease infinite;
+  }
+
+  /* ========================================
+     GAME-SPECIFIC BUTTON VARIANTS
+     ======================================== */
+
+  .btn--game-option {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.4);
+    padding: 1rem;
+    font-size: 1.125rem;
+    min-width: 120px;
+    text-align: center;
+  }
+
+  .btn--game-option:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .btn--game-option--selected {
+    transform: scale(1.05);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  .btn--game-option--correct {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: rgba(34, 197, 94, 0.4);
+    color: rgb(187, 247, 208);
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+  }
+
+  .btn--game-option--wrong {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: rgb(254, 202, 202);
+    transform: scale(0.95);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+  }
+
+  .btn--game-option--dimmed {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+
+  /* ========================================
+     BUTTON FOCUS STATES
+     ======================================== */
+
+  .btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(196, 181, 253, 0.5);
+    outline-offset: 2px;
+  }
+
+  /* ========================================
+     BUTTON ANIMATIONS
+     ======================================== */
+
+  @keyframes button-loading-spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+}

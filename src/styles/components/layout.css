@@ -1,0 +1,233 @@
+/**
+ * Layout & Grid System
+ * Professional BEM-style classes for layouts and grids
+ */
+
+@layer components {
+  /* ========================================
+     CONTAINER SYSTEM
+     ======================================== */
+
+  /* Main Container */
+  .container-main {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .container-main {
+      padding: 0 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container-main {
+      padding: 0 2rem;
+    }
+  }
+
+  /* Game Container */
+  .container-game {
+    max-width: 64rem;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .container-game {
+      padding: 0 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container-game {
+      padding: 0 2rem;
+    }
+  }
+
+  /* Narrow Container */
+  .container-narrow {
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .container-narrow {
+      padding: 0 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container-narrow {
+      padding: 0 2rem;
+    }
+  }
+
+  /* ========================================
+     GRID SYSTEM
+     ======================================== */
+
+  /* Games Grid */
+  .grid-games {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  @media (min-width: 768px) {
+    .grid-games {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .grid-games {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* Game Options Grid */
+  .grid-game-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    max-width: 28rem;
+    margin: 0 auto;
+  }
+
+  /* 4-Column Game Options Grid */
+  .grid-game-options--4 {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    max-width: 56rem;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  /* Stats Grid */
+  .grid-stats {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  @media (min-width: 768px) {
+    .grid-stats {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* ========================================
+     FLEX SYSTEM
+     ======================================== */
+
+  /* Navigation Flex */
+  .flex-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 4rem;
+  }
+
+  /* Center Flex */
+  .flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Game Controls Flex */
+  .flex-game-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .flex-game-controls {
+      flex-direction: row;
+      justify-content: center;
+    }
+  }
+
+  /* Space Between Flex */
+  .flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* Wrap Center Flex */
+  .flex-wrap-center {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  /* ========================================
+     RESPONSIVE HELPERS
+     ======================================== */
+
+  @media (max-width: 640px) {
+    .mobile-stack {
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .mobile-full {
+      width: 100%;
+    }
+    
+    .mobile-text-center {
+      text-align: center;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .desktop-flex {
+      display: flex;
+    }
+    
+    .desktop-grid {
+      display: grid;
+    }
+  }
+
+  /* ========================================
+     RESPONSIVE ADJUSTMENTS
+     ======================================== */
+
+  @media (max-width: 640px) {
+    .container-game {
+      padding: 0 0.5rem;
+    }
+
+    .grid-games {
+      gap: 1rem;
+    }
+
+    .grid-game-options {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+  }
+
+  /* ========================================
+     BODY LAYOUT
+     ======================================== */
+
+  /* Layout Body */
+  .layout-body {
+    background-color: #111827;
+    color: white;
+    min-height: 100vh;
+  }
+}

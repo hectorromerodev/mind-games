@@ -1,0 +1,163 @@
+/**
+ * Navigation Components
+ * Professional BEM-style classes for navigation elements
+ */
+
+@layer components {
+  /* ========================================
+     NAVIGATION COMPONENTS
+     ======================================== */
+
+  /* Base Navigation */
+  .nav {
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  /* Navigation Container */
+  .nav__container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 4rem;
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .nav__container {
+      padding: 0 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .nav__container {
+      padding: 0 2rem;
+    }
+  }
+
+  /* Navigation Brand */
+  .nav__brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .nav__brand:hover {
+    transform: scale(1.05);
+  }
+
+  /* Navigation Links */
+  .nav__links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  /* Navigation Link */
+  .nav__link {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .nav__link:hover {
+    color: rgb(196, 181, 253);
+  }
+
+  .nav__link::after {
+    content: '';
+    position: absolute;
+    bottom: -0.5rem;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(to right, #9333ea, #2563eb);
+    transition: width 0.3s ease;
+  }
+
+  .nav__link:hover::after {
+    width: 100%;
+  }
+
+  /* Active Navigation Link */
+  .nav__link--active {
+    color: rgb(196, 181, 253);
+  }
+
+  .nav__link--active::after {
+    width: 100%;
+  }
+
+  /* ========================================
+     BACK BUTTON
+     ======================================== */
+
+  /* Back Button */
+  .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(15, 23, 42, 0.1);
+    backdrop-filter: blur(12px);
+    color: white;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(226, 232, 240, 0.2);
+    text-decoration: none;
+  }
+
+  .btn-back:hover {
+    background: rgba(15, 23, 42, 0.2);
+    border-color: rgba(226, 232, 240, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .btn-back:active {
+    transform: translateY(0);
+  }
+
+  /* Back Button Icon */
+  .btn-back__icon {
+    width: 1rem;
+    height: 1rem;
+    transition: transform 0.3s ease;
+  }
+
+  .btn-back:hover .btn-back__icon {
+    transform: translateX(-2px);
+  }
+
+  /* ========================================
+     RESPONSIVE NAVIGATION
+     ======================================== */
+
+  @media (max-width: 640px) {
+    .nav__container {
+      padding: 0 0.5rem;
+    }
+
+    .nav__brand {
+      font-size: 1.25rem;
+    }
+
+    .nav__links {
+      gap: 1rem;
+    }
+
+    .nav__link {
+      font-size: 0.875rem;
+    }
+  }
+}

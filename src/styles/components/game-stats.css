@@ -1,0 +1,163 @@
+/**
+ * Game Stats Component Styles
+ * Displays game statistics like round, score, timer, and performance level
+ */
+
+@layer components {
+  /* ========================================
+     GAME STATS CONTAINER
+     ======================================== */
+
+  .game-stats {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  @media (min-width: 768px) {
+    .game-stats {
+      gap: 2rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .game-stats {
+      gap: 0.5rem;
+    }
+  }
+
+  /* ========================================
+     GAME STATS CARD
+     ======================================== */
+
+  .game-stats__card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    min-width: 5rem;
+    transition: all 0.3s ease;
+  }
+
+  .game-stats__card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+  }
+
+  @media (min-width: 768px) {
+    .game-stats__card {
+      padding: 1rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .game-stats__card {
+      min-width: 4rem;
+    }
+  }
+
+  .game-stats__card--wide {
+    min-width: 7.5rem;
+  }
+
+  /* ========================================
+     GAME STATS VALUES
+     ======================================== */
+
+  .game-stats__value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  @media (min-width: 768px) {
+    .game-stats__value {
+      font-size: 1.5rem;
+    }
+  }
+
+  .game-stats__value--sm {
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  @media (min-width: 768px) {
+    .game-stats__value--sm {
+      font-size: 1rem;
+    }
+  }
+
+  /* ========================================
+     GAME STATS LABELS
+     ======================================== */
+
+  .game-stats__label {
+    color: #d1d5db;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .game-stats__label {
+      font-size: 0.875rem;
+    }
+  }
+
+  /* ========================================
+     GAME STATS STATE COLORS
+     ======================================== */
+
+  .game-stats__value--danger {
+    color: rgb(239, 68, 68);
+  }
+
+  .game-stats__value--warning {
+    color: rgb(251, 191, 36);
+  }
+
+  .game-stats__value--success {
+    color: rgb(34, 197, 94);
+  }
+
+  .game-stats__value--info {
+    color: rgb(96, 165, 250);
+  }
+
+  .game-stats__value--purple {
+    color: rgb(168, 85, 247);
+  }
+
+  .game-stats__value--blue {
+    color: rgb(59, 130, 246);
+  }
+
+  .game-stats__value--green {
+    color: rgb(34, 197, 94);
+  }
+
+  .game-stats__value--cyan {
+    color: rgb(6, 182, 212);
+  }
+
+  .game-stats__value--gray {
+    color: rgb(156, 163, 175);
+  }
+
+  .game-stats__value--orange {
+    color: rgb(251, 146, 60);
+  }
+
+  .game-stats__value--red {
+    color: rgb(239, 68, 68);
+  }
+}

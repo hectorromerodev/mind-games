@@ -1,0 +1,191 @@
+/**
+ * Typography System
+ * Professional BEM-style classes for text and headings
+ */
+
+@layer components {
+  /* ========================================
+     HEADING SYSTEM
+     ======================================== */
+
+  /* Primary Heading */
+  .heading-primary {
+    font-size: 1.875rem;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 0.75rem;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  @media (min-width: 768px) {
+    .heading-primary {
+      font-size: 2.25rem;
+    }
+  }
+
+  /* Primary Heading Mobile */
+  .heading-primary--mobile {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+  }
+
+  /* Secondary Heading */
+  .heading-secondary {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 0.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .heading-secondary {
+      font-size: 1.5rem;
+    }
+  }
+
+  /* Tertiary Heading */
+  .heading-tertiary {
+    font-size: 1.125rem;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 0.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .heading-tertiary {
+      font-size: 1.25rem;
+    }
+  }
+
+  /* Game Status Heading */
+  .heading-game-status {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  /* Game Title Heading */
+  .heading-game-title {
+    font-size: 2.25rem;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 2rem;
+  }
+
+  @media (min-width: 768px) {
+    .heading-game-title {
+      font-size: 3rem;
+    }
+  }
+
+  /* ========================================
+     BRAND TEXT SYSTEM
+     ======================================== */
+
+  /* Brand Text */
+  .text-brand {
+    background: linear-gradient(to right, #c084fc, #f472b6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Alternative Brand Text */
+  .text-brand--alt {
+    background: linear-gradient(to right, #60a5fa, #c084fc);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* ========================================
+     TEXT SYSTEM
+     ======================================== */
+
+  /* Muted Text */
+  .text-muted {
+    color: rgb(209, 213, 219);
+    font-size: 0.875rem;
+  }
+
+  /* Large Muted Text */
+  .text-muted--lg {
+    color: rgb(209, 213, 219);
+    font-size: 1rem;
+  }
+
+  /* Description Text */
+  .text-description {
+    color: rgb(209, 213, 219);
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Large Description Text */
+  .text-description--lg {
+    font-size: 1.125rem;
+    color: #d1d5db;
+    line-height: 1.6;
+  }
+
+  /* ========================================
+     GAME TEXT SYSTEM
+     ======================================== */
+
+  /* Game Problem Text */
+  .text-game-problem {
+    font-size: 1.875rem;
+    font-weight: bold;
+    color: rgb(196, 181, 253);
+    margin-bottom: 0.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  /* Game Equation Text */
+  .text-game-equation {
+    font-size: 1.875rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  /* Correct Game Equation */
+  .text-game-equation--correct {
+    color: rgb(34, 197, 94);
+  }
+
+  /* Wrong Game Equation */
+  .text-game-equation--wrong {
+    color: rgb(239, 68, 68);
+  }
+
+  /* ========================================
+     RESPONSIVE ADJUSTMENTS
+     ======================================== */
+
+  @media (max-width: 640px) {
+    .text-game-problem {
+      font-size: 1.5rem;
+    }
+
+    .text-game-equation {
+      font-size: 1.5rem;
+    }
+
+    .heading-game-title {
+      font-size: 1.875rem;
+    }
+  }
+}
