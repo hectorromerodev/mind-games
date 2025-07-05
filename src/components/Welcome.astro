@@ -18,6 +18,13 @@ import { createRoute } from '../utils/paths';
         Challenge your intellect with brain-twisting puzzles and games designed to push your cognitive limits
       </p>
       
+      <!-- Mobile CTA Button (Top) - Only visible on mobile -->
+      <div class="block md:hidden mb-8">
+        <a href={createRoute('GAMES')} class="btn btn--start btn--xl">
+          Start Playing
+        </a>
+      </div>
+      
       <!-- Features Grid -->
       <div class="grid-games mb-12 max-w-4xl mx-auto">
         <div class="glass-card">
